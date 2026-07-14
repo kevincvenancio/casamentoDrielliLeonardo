@@ -145,8 +145,63 @@ npm run seed # popular presentes
 
 ## Deploy na Vercel
 
-1. Importe o repositório na Vercel.
-2. Configure as mesmas variáveis do `.env.example` em
- **Settings → Environment Variables**.
-3. Ajuste `NEXT_PUBLIC_SITE_URL` para o domínio de produção e atualize a URL
- do webhook no painel do MP.
+> **Não use GitHub Pages.** O Pages serve apenas arquivos estáticos e não roda
+> servidor. Este site depende de API Routes (`/api/checkout`,
+> `/api/webhook/mercadopago`, `/api/rsvp`, `/api/admin/login`) e de segredos
+> que **nunca** podem ir para o browser (`SUPABASE_SERVICE_ROLE_KEY`,
+> `MP_ACCESS_TOKEN`). Em um export estático o webhook do Mercado Pago não teria
+> onde ser recebido e nenhum presente seria marcado como pago.
+
+### 1. Importar o projeto
+
+Login na Vercel com o GitHub → **Add New… → Project** → selecione este
+repositório. A Vercel detecta o Next.js sozinha; não mude nenhuma configuração
+de build.
+
+### 2. Variáveis de ambiente
+
+Em **Settings → Environment Variables**, cadastre (marque os três ambientes:
+Production, Preview e Development):
+
+| Variável | Valor |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://<ref>.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon key do Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | service role key do Supabase |
+| `ADMIN_PASSWORD` | senha do painel `/admin` |
+| `NEXT_PUBLIC_SITE_URL` | ver passo 3 |
+| `MP_ACCESS_TOKEN` | token do Mercado Pago (pode ficar vazio no início) |
+| `MP_WEBHOOK_SECRET` | segredo do webhook (pode ficar vazio no início) |
+
+As duas variáveis do Mercado Pago podem ficar em branco no primeiro deploy: o
+site sobe e funciona normalmente, apenas o botão **"Presentear"** falha até
+elas serem preenchidas.
+
+### 3. O ovo e a galinha do `NEXT_PUBLIC_SITE_URL`
+
+Essa variável precisa apontar para o domínio de produção — que só existe
+**depois** do primeiro deploy. Então:
+
+1. Faça o primeiro deploy com `NEXT_PUBLIC_SITE_URL=http://localhost:3000`
+ (ou deixe vazio). Ele vai subir normalmente.
+2. Anote a URL que a Vercel gerou (ex.: `https://seu-projeto.vercel.app`).
+3. Volte em Environment Variables, corrija `NEXT_PUBLIC_SITE_URL` para essa URL
+ e clique em **Redeploy**.
+
+Se pular o passo 3, o checkout quebra: as `back_urls` e a `notification_url`
+enviadas ao Mercado Pago apontariam para `localhost`, que o MP rejeita.
+
+### 4. Webhook do Mercado Pago
+
+Com o site no ar, cadastre no painel do MP (**Suas integrações → Webhooks**):
+
+```
+https://seu-projeto.vercel.app/api/webhook/mercadopago
+```
+
+O painel então exibe a **assinatura secreta** — copie para `MP_WEBHOOK_SECRET`
+na Vercel e faça um novo Redeploy. Sem esse segredo o webhook rejeita tudo com
+401 (comportamento intencional: requisições não assinadas são recusadas).
+
+Em produção a Vercel já fornece HTTPS público, então **o ngrok não é
+necessário** — ele só serve para testar o webhook na sua máquina (seção 5).
