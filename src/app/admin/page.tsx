@@ -62,19 +62,21 @@ export default async function AdminPage() {
                 <th className="p-3">Nome</th>
                 <th className="p-3">Contato</th>
                 <th className="p-3">Vai?</th>
-                <th className="p-3">Acomp.</th>
+                <th className="p-3">Acompanhantes</th>
                 <th className="p-3">Mensagem</th>
               </tr>
             </thead>
             <tbody>
               {guests.map((g) => (
-                <tr key={g.id} className="border-t border-sand">
+                <tr key={g.id} className="border-t border-sand align-top">
                   <td className="p-3 font-medium">{g.name}</td>
                   <td className="p-3 text-stone">
                     {g.email || g.phone || "-"}
                   </td>
                   <td className="p-3">{g.attending ? "Sim" : "Não"}</td>
-                  <td className="p-3">{g.companions ?? 0}</td>
+                  <td className="p-3">
+                    <Acompanhantes guest={g} />
+                  </td>
                   <td className="p-3 text-stone">{g.message || "-"}</td>
                 </tr>
               ))}
@@ -130,6 +132,39 @@ export default async function AdminPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+/**
+ * Lista os nomes dos acompanhantes.
+ *
+ * Confirmacoes feitas ANTES da migration 0002 so tem a quantidade, sem nomes.
+ * Nesses casos sinalizamos explicitamente, em vez de mostrar "0" e dar a
+ * impressao errada de que a pessoa vai sozinha.
+ */
+function Acompanhantes({ guest }: { guest: Guest }) {
+  if (!guest.attending) return <span className="text-stone">-</span>;
+
+  const nomes = guest.companion_names ?? [];
+  const quantidade = guest.companions ?? 0;
+
+  if (nomes.length === 0 && quantidade > 0) {
+    return (
+      <span className="text-stone">
+        {quantidade}{" "}
+        <span className="text-xs italic">(nomes não informados)</span>
+      </span>
+    );
+  }
+
+  if (nomes.length === 0) return <span className="text-stone">-</span>;
+
+  return (
+    <ol className="list-inside list-decimal space-y-0.5">
+      {nomes.map((nome, i) => (
+        <li key={i}>{nome}</li>
+      ))}
+    </ol>
   );
 }
 

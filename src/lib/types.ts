@@ -20,7 +20,9 @@ export interface Guest {
   email: string | null;
   phone: string | null;
   attending: boolean;
+  /** Sempre igual a companion_names.length -- quem grava e a API. */
   companions: number;
+  companion_names: string[];
   message: string | null;
   created_at: string;
 }

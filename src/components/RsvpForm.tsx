@@ -7,17 +7,38 @@ export function RsvpForm({ maxCompanions }: { maxCompanions: number }) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [attending, setAttending] = useState<boolean | null>(null);
-  const [companions, setCompanions] = useState(0);
+  // Um campo de texto por acompanhante. A quantidade e o tamanho desta lista.
+  const [companionNames, setCompanionNames] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function addCompanion() {
+    if (companionNames.length >= maxCompanions) return;
+    setCompanionNames((prev) => [...prev, ""]);
+  }
+
+  function removeCompanion(index: number) {
+    setCompanionNames((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function setCompanionName(index: number, value: string) {
+    setCompanionNames((prev) => prev.map((n, i) => (i === index ? value : n)));
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     if (!name.trim()) return setError("Informe seu nome.");
     if (attending === null) return setError("Informe se você vai comparecer.");
+
+    const nomes = companionNames.map((n) => n.trim());
+    if (attending && nomes.some((n) => !n)) {
+      return setError(
+        "Preencha o nome de cada acompanhante (ou remova o campo vazio)."
+      );
+    }
 
     setLoading(true);
     try {
@@ -29,7 +50,7 @@ export function RsvpForm({ maxCompanions }: { maxCompanions: number }) {
           email: email.trim() || undefined,
           phone: phone.trim() || undefined,
           attending,
-          companions,
+          companionNames: attending ? nomes : [],
           message: message.trim() || undefined,
         }),
       });
@@ -108,7 +129,10 @@ export function RsvpForm({ maxCompanions }: { maxCompanions: number }) {
           </button>
           <button
             type="button"
-            onClick={() => setAttending(false)}
+            onClick={() => {
+              setAttending(false);
+              setCompanionNames([]);
+            }}
             className={
               attending === false ? "btn-primary flex-1" : "btn-outline flex-1"
             }
@@ -120,20 +144,50 @@ export function RsvpForm({ maxCompanions }: { maxCompanions: number }) {
 
       {attending === true && (
         <div>
-          <label className="field-label">
-            Acompanhantes (além de você)
-          </label>
-          <select
-            className="field-input"
-            value={companions}
-            onChange={(e) => setCompanions(Number(e.target.value))}
-          >
-            {Array.from({ length: maxCompanions + 1 }, (_, i) => (
-              <option key={i} value={i}>
-                {i}
-              </option>
-            ))}
-          </select>
+          <span className="field-label">Acompanhantes</span>
+
+          {companionNames.length === 0 ? (
+            <p className="mb-3 text-sm text-stone">
+              Vai levar alguém? Adicione o nome de cada acompanhante.
+            </p>
+          ) : (
+            <ul className="mb-3 space-y-3">
+              {companionNames.map((nome, i) => (
+                <li key={i} className="flex items-center gap-2">
+                  <input
+                    className="field-input"
+                    value={nome}
+                    placeholder={`Nome do ${i + 1}º acompanhante`}
+                    aria-label={`Nome do ${i + 1}º acompanhante`}
+                    onChange={(e) => setCompanionName(i, e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeCompanion(i)}
+                    aria-label={`Remover ${i + 1}º acompanhante`}
+                    className="shrink-0 rounded-lg border border-sand px-3 py-2 text-sm text-stone transition hover:border-stone hover:text-ink"
+                  >
+                    Remover
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {companionNames.length < maxCompanions ? (
+            <button
+              type="button"
+              onClick={addCompanion}
+              className="btn-outline w-full py-2 text-sm"
+            >
+              + Adicionar acompanhante
+            </button>
+          ) : (
+            <p className="text-sm text-stone">
+              Máximo de {maxCompanions} acompanhantes. Se precisar de mais, fale
+              com os noivos.
+            </p>
+          )}
         </div>
       )}
 

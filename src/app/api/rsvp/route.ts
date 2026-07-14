@@ -10,30 +10,45 @@ export async function POST(req: NextRequest) {
     email?: string;
     phone?: string;
     attending?: boolean;
-    companions?: number;
+    companionNames?: unknown;
     message?: string;
   };
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: "JSON invalido." }, { status: 400 });
+    return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
   }
 
   const name = body.name?.trim();
   if (!name) {
-    return NextResponse.json({ error: "Nome e obrigatorio." }, { status: 400 });
+    return NextResponse.json({ error: "Nome é obrigatório." }, { status: 400 });
   }
   if (typeof body.attending !== "boolean") {
     return NextResponse.json(
-      { error: "Informe se voce vai comparecer." },
+      { error: "Informe se você vai comparecer." },
       { status: 400 }
     );
   }
 
-  const companions = Math.max(
-    0,
-    Math.min(wedding.rsvp.maxCompanions, Number(body.companions ?? 0) || 0)
-  );
+  // Nomes dos acompanhantes: sanitiza no servidor (nunca confie no client).
+  // Descarta o que nao for string, corta espacos e ignora vazios.
+  const rawNames = Array.isArray(body.companionNames) ? body.companionNames : [];
+  const companionNames = body.attending
+    ? rawNames
+        .filter((n): n is string => typeof n === "string")
+        .map((n) => n.trim())
+        .filter((n) => n.length > 0)
+        .slice(0, wedding.rsvp.maxCompanions)
+    : [];
+
+  if (rawNames.length > wedding.rsvp.maxCompanions) {
+    return NextResponse.json(
+      {
+        error: `Máximo de ${wedding.rsvp.maxCompanions} acompanhantes. Se precisar de mais, fale com os noivos.`,
+      },
+      { status: 400 }
+    );
+  }
 
   const supabase = createServiceClient();
   const { error } = await supabase.from("guests").insert({
@@ -41,7 +56,9 @@ export async function POST(req: NextRequest) {
     email: body.email?.trim() || null,
     phone: body.phone?.trim() || null,
     attending: body.attending,
-    companions: body.attending ? companions : 0,
+    // Derivado dos nomes, nunca vindo do client: os dois nao podem divergir.
+    companions: companionNames.length,
+    companion_names: companionNames,
     message: body.message?.trim() || null,
   });
 
