@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  @apply bg-cream text-ink antialiased;
+}
+
+.container-page {
+  @apply mx-auto w-full max-w-5xl px-5;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-full bg-ink px-6 py-3
+    text-sm font-medium tracking-wide text-cream transition
+    hover:bg-stone disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.btn-outline {
+  @apply inline-flex items-center justify-center rounded-full border border-ink
+    px-6 py-3 text-sm font-medium tracking-wide text-ink transition
+    hover:bg-ink hover:text-cream;
+}
+
+.section-title {
+  @apply font-serif text-3xl text-ink md:text-4xl;
+}
+
+.field-label {
+  @apply mb-1 block text-sm font-medium text-stone;
+}
+
+.field-input {
+  @apply w-full rounded-lg border border-sand bg-white px-3 py-2 text-ink
+    outline-none focus:border-stone;
+}
