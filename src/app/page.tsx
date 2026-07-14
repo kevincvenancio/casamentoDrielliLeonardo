@@ -15,6 +15,18 @@ export default function HomePage() {
                 }}
             >
                 <div className="container-page py-16 text-center text-cream sm:py-20">
+                    {wedding.logo && (
+                        // Medalhao claro atras da logo: o monograma e traco escuro
+                        // e sumiria sobre a capa (fundo escuro, e depois a foto).
+                        <div className="mx-auto mb-8 inline-flex rounded-full bg-cream/90 px-8 py-6 shadow-sm backdrop-blur-sm">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={wedding.logo}
+                                alt={`${wedding.couple.bride} & ${wedding.couple.groom}`}
+                                className="h-28 w-auto sm:h-36"
+                            />
+                        </div>
+                    )}
                     <p className="mb-4 text-xs uppercase tracking-[0.3em] sm:text-sm">
                         {wedding.tagline}
                     </p>

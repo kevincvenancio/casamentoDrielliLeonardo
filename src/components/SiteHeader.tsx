@@ -21,6 +21,8 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-sand bg-cream/90 backdrop-blur">
       <div className="container-page flex items-center justify-between py-4">
+        {/* A logo e um monograma vertical: no header ela encolheria a ponto de
+            virar um borrao. Ela vive na capa da home, onde tem espaco. */}
         <Link
           href="/"
           className="font-serif text-lg tracking-wide"

@@ -24,6 +24,10 @@ export const wedding = {
   // Imagem de capa (coloque a foto em /public/images/cover.jpg)
   coverImage: "/images/cover.jpg",
 
+  // Monograma do casal, exibido no topo do site.
+  // Se o arquivo nao existir, o header cai para o nome do casal em texto.
+  logo: "/images/logo.png",
+
   contactEmail: "",
 
   story: {
