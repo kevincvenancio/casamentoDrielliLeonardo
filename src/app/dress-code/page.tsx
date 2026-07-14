@@ -2,6 +2,43 @@ import { wedding } from "@/config/wedding";
 
 export const metadata = { title: "Dress Code" };
 
+type Foto = { src: string; alt: string };
+
+function CartaoLook({
+  titulo,
+  texto,
+  fotos,
+}: {
+  titulo: string;
+  texto: string;
+  fotos: readonly Foto[];
+}) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-sand bg-white">
+      {fotos.length > 0 && (
+        // Sem aspect-ratio fixo de proposito: as fotos de referencia vem com
+        // proporcoes diferentes e um recorte forcado cortava os rostos.
+        <div className="grid grid-cols-1 gap-px bg-sand">
+          {fotos.map((foto) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={foto.src}
+              src={foto.src}
+              alt={foto.alt}
+              className="h-auto w-full bg-sand"
+              loading="lazy"
+            />
+          ))}
+        </div>
+      )}
+      <div className="p-8">
+        <p className="text-xs uppercase tracking-widest text-stone">{titulo}</p>
+        <p className="mt-3 text-stone">{texto}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function DressCodePage() {
   const { dressCode } = wedding;
 
@@ -14,16 +51,19 @@ export default function DressCodePage() {
       </header>
 
       <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
-        <div className="rounded-2xl border border-sand bg-white p-8">
-          <p className="text-xs uppercase tracking-widest text-stone">Elas</p>
-          <p className="mt-3 text-stone">{dressCode.women}</p>
-        </div>
-        <div className="rounded-2xl border border-sand bg-white p-8">
-          <p className="text-xs uppercase tracking-widest text-stone">Eles</p>
-          <p className="mt-3 text-stone">{dressCode.men}</p>
-        </div>
+        <CartaoLook
+          titulo="Elas"
+          texto={dressCode.women}
+          fotos={dressCode.womenPhotos}
+        />
+        <CartaoLook
+          titulo="Eles"
+          texto={dressCode.men}
+          fotos={dressCode.menPhotos}
+        />
       </div>
 
+      {/* Cores a evitar */}
       <div className="mx-auto mt-6 max-w-3xl rounded-2xl border border-sand bg-white p-8">
         <p className="text-xs uppercase tracking-widest text-stone">
           Cores a evitar
@@ -42,6 +82,28 @@ export default function DressCodePage() {
         </ul>
         <p className="mt-6 text-sm text-stone">{dressCode.avoidNote}</p>
       </div>
+
+      {/* Inspiracao de cores */}
+      {dressCode.palettePhoto && (
+        <div className="mx-auto mt-6 max-w-3xl overflow-hidden rounded-2xl border border-sand bg-white">
+          <div className="p-8 pb-6">
+            <p className="text-xs uppercase tracking-widest text-stone">
+              Inspiração de cores
+            </p>
+            <p className="mt-3 text-stone">
+              Fora as cores acima, sinta-se livre. Vale de verde a vinho,
+              passando por azul, mostarda e terracota.
+            </p>
+          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={dressCode.palettePhoto.src}
+            alt={dressCode.palettePhoto.alt}
+            className="w-full bg-sand"
+            loading="lazy"
+          />
+        </div>
+      )}
     </div>
   );
 }

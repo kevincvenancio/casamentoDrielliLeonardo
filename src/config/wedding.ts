@@ -64,6 +64,30 @@ export const wedding = {
       "Para nos ajudar a compor o clima da festa, pedimos que os trajes sigam o esporte fino.",
     women: "Vestido midi ou longo.",
     men: "Calça social com camisa. Se quiser, complemente com blazer ou gravata.",
+
+    // Fotos de referencia. Para adicionar mais:
+    // 1. salve o arquivo em /public/images/dress-code/
+    // 2. acrescente uma linha aqui com src e alt.
+    // Atencao: a foto e um EXEMPLO do que vestir -- nao inclua imagens com as
+    // cores da lista `avoidColors`, nem com camiseta/tenis (nao e esporte fino).
+    womenPhotos: [
+      {
+        src: "/images/dress-code/elas-vestidos-midi.jpeg",
+        alt: "Duas convidadas em vestidos midi, um verde e um laranja",
+      },
+    ],
+    menPhotos: [
+      {
+        src: "/images/dress-code/eles-calca-camisa.jpeg",
+        alt: "Convidado de calça social cinza, camisa azul-marinho e sapato social",
+      },
+    ],
+
+    // Colagem de referencia de cores permitidas.
+    palettePhoto: {
+      src: "/images/dress-code/paleta-cores.jpeg",
+      alt: "Colagem com dezenas de vestidos em cores variadas: verde, azul, vinho, mostarda, terracota",
+    },
     // Cores reservadas para a noiva e o cortejo -- pedimos que as convidadas evitem.
     avoidColors: [
       { label: "Branco", hex: "#FFFFFF" },
