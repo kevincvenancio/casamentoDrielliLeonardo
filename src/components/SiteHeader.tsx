@@ -10,6 +10,7 @@ const nav = [
   { href: "/nossa-historia", label: "Nossa História" },
   { href: "/local", label: "Local" },
   { href: "/dress-code", label: "Dress Code" },
+  { href: "/manual-do-convidado", label: "Manual" },
   { href: "/presentes", label: "Presentes" },
   { href: "/rsvp", label: "Confirmar" },
 ];

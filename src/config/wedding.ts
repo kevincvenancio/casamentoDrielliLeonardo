@@ -100,6 +100,76 @@ export const wedding = {
       "Pedimos às convidadas que evitem estas cores. Elas estão reservadas para a noiva e o cortejo.",
   },
 
+  // Manual do convidado. Para editar, mexa só no texto -- o `icon` liga com
+  // o desenho correspondente em src/components/ManualIcons.tsx.
+  guestManual: {
+    title: "Manual do Convidado",
+    intro:
+      "Alguns pedidos para que o dia seja leve e especial para todo mundo.",
+    items: [
+      {
+        icon: "check",
+        title: "Confirme sua presença",
+        text: "Nos ajuda a organizar os lugares e o buffet. Confirme até 31 de outubro.",
+      },
+      {
+        icon: "phone",
+        title: "Deixe o celular no silencioso",
+        text: "Principalmente durante a cerimônia.",
+      },
+      {
+        icon: "envelope",
+        title: "Convidado não convida",
+        text: "O convite vale para as pessoas nomeadas nele. Se quiser levar alguém, fale com a gente antes.",
+      },
+      {
+        icon: "clock",
+        title: "Não se atrase",
+        text: "A cerimônia começa às 15h. Chegue com antecedência para não perder a entrada.",
+      },
+      {
+        icon: "church",
+        title: "Participe da cerimônia",
+        text: "É o momento mais importante do dia, e queremos você lá.",
+      },
+      {
+        icon: "camera",
+        title: "Não atrapalhe os fotógrafos",
+        text: "Eles têm um roteiro a cumprir. Aproveite o momento com os olhos — as fotos a gente compartilha depois.",
+      },
+      {
+        icon: "dress",
+        title: "Branco é a cor da noiva",
+        text: "Veja as cores reservadas na página de dress code.",
+      },
+      {
+        icon: "cake",
+        title: "Aguarde a liberação da mesa de doces",
+        text: "Ela é aberta depois do corte do bolo.",
+      },
+      {
+        icon: "flowers",
+        title: "Não leve a decoração para casa",
+        text: "Os arranjos são alugados e precisam voltar para o fornecedor.",
+      },
+      {
+        icon: "chat",
+        title: "Nada de comentários negativos",
+        text: "Foi tudo pensado com muito carinho. Se algo não sair como o esperado, deixe passar.",
+      },
+      {
+        icon: "confetti",
+        title: "Aproveite bastante",
+        text: "Coma, dance e celebre com a gente. A festa é para você também.",
+      },
+      {
+        icon: "couple",
+        title: "Não vá embora sem se despedir",
+        text: "Queremos abraçar você antes do fim da noite.",
+      },
+    ],
+  },
+
   rsvp: {
     deadlineLabel: "Confirme até 31 de Outubro de 2026",
     maxCompanions: 5,
