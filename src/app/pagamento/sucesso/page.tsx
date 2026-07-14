@@ -7,7 +7,7 @@ export default function SuccessPage() {
     <PaymentResult
       tone="success"
       title="Pagamento aprovado!"
-      message="Muito obrigado pelo carinho e pelo presente. A confirmacao final acontece automaticamente e o presente ja consta como seu. Nos vemos no grande dia!"
+      message="Muito obrigado pelo carinho e pelo presente. A confirmação final acontece automaticamente e o presente já consta como seu. Nos vemos no grande dia!"
     />
   );
 }

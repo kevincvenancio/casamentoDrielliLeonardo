@@ -7,7 +7,7 @@ export default function PendingPage() {
     <PaymentResult
       tone="pending"
       title="Pagamento pendente"
-      message="Seu pagamento esta sendo processado (isso e comum com boleto ou Pix). Assim que for aprovado, o presente sera confirmado automaticamente. Obrigado!"
+      message="Seu pagamento está sendo processado (isso é comum com boleto ou Pix). Assim que for aprovado, o presente será confirmado automaticamente. Obrigado!"
     />
   );
 }

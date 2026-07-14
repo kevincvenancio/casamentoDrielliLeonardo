@@ -17,7 +17,7 @@ export function RsvpForm({ maxCompanions }: { maxCompanions: number }) {
     e.preventDefault();
     setError(null);
     if (!name.trim()) return setError("Informe seu nome.");
-    if (attending === null) return setError("Informe se voce vai comparecer.");
+    if (attending === null) return setError("Informe se você vai comparecer.");
 
     setLoading(true);
     try {
@@ -41,7 +41,7 @@ export function RsvpForm({ maxCompanions }: { maxCompanions: number }) {
       }
       setDone(true);
     } catch {
-      setError("Erro de conexao. Tente novamente.");
+      setError("Erro de conexão. Tente novamente.");
       setLoading(false);
     }
   }
@@ -52,7 +52,7 @@ export function RsvpForm({ maxCompanions }: { maxCompanions: number }) {
         <h2 className="font-serif text-2xl">Obrigado!</h2>
         <p className="mt-2 text-stone">
           {attending
-            ? "Sua presenca foi confirmada. Mal podemos esperar para celebrar com voce!"
+            ? "Sua presença foi confirmada. Mal podemos esperar para celebrar com você!"
             : "Agradecemos o retorno. Sentiremos sua falta!"}
         </p>
       </div>
@@ -95,7 +95,7 @@ export function RsvpForm({ maxCompanions }: { maxCompanions: number }) {
       </div>
 
       <div>
-        <span className="field-label">Voce vai comparecer? *</span>
+        <span className="field-label">Você vai comparecer? *</span>
         <div className="flex gap-3">
           <button
             type="button"
@@ -113,7 +113,7 @@ export function RsvpForm({ maxCompanions }: { maxCompanions: number }) {
               attending === false ? "btn-primary flex-1" : "btn-outline flex-1"
             }
           >
-            Nao poderei
+            Não poderei
           </button>
         </div>
       </div>
@@ -121,7 +121,7 @@ export function RsvpForm({ maxCompanions }: { maxCompanions: number }) {
       {attending === true && (
         <div>
           <label className="field-label">
-            Acompanhantes (alem de voce)
+            Acompanhantes (além de você)
           </label>
           <select
             className="field-input"

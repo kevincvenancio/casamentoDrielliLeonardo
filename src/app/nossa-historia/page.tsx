@@ -11,16 +11,20 @@ export default function StoryPage() {
         <p className="mx-auto mt-4 max-w-2xl text-stone">{story.intro}</p>
       </header>
 
-      <ol className="relative mx-auto max-w-2xl border-l border-sand pl-8">
-        {story.timeline.map((item, i) => (
-          <li key={i} className="mb-10 last:mb-0">
-            <span className="absolute -left-2.5 mt-1 h-5 w-5 rounded-full border-2 border-cream bg-stone" />
-            <p className="font-serif text-2xl text-ink">{item.year}</p>
-            <h3 className="mt-1 text-lg font-medium">{item.title}</h3>
-            <p className="mt-1 text-stone">{item.text}</p>
-          </li>
-        ))}
-      </ol>
+      {story.timeline.length > 0 ? (
+        <ol className="relative mx-auto max-w-2xl border-l border-sand pl-8">
+          {story.timeline.map((item, i) => (
+            <li key={i} className="relative mb-10 last:mb-0">
+              <span className="absolute -left-[42px] mt-2 h-5 w-5 rounded-full border-2 border-cream bg-stone" />
+              <p className="text-xs uppercase tracking-widest text-stone">
+                {item.date}
+              </p>
+              <h3 className="mt-1 font-serif text-2xl text-ink">{item.title}</h3>
+              {item.text ? <p className="mt-2 text-stone">{item.text}</p> : null}
+            </li>
+          ))}
+        </ol>
+      ) : null}
     </div>
   );
 }

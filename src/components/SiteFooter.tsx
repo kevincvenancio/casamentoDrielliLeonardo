@@ -8,7 +8,9 @@ export function SiteFooter() {
           {wedding.couple.bride} & {wedding.couple.groom}
         </p>
         <p>{wedding.dateLabel}</p>
-        <p className="text-xs">{wedding.couple.hashtag}</p>
+        {wedding.couple.hashtag ? (
+          <p className="text-xs">{wedding.couple.hashtag}</p>
+        ) : null}
       </div>
     </footer>
   );

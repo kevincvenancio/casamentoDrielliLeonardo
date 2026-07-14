@@ -111,13 +111,13 @@ function CheckoutModal({
             });
             const data = await res.json();
             if (!res.ok) {
-                setError(data.error ?? "Nao foi possivel iniciar o pagamento.");
+                setError(data.error ?? "Não foi possível iniciar o pagamento.");
                 setLoading(false);
                 return;
             }
             window.location.href = data.init_point;
         } catch {
-            setError("Erro de conexao. Tente novamente.");
+            setError("Erro de conexão. Tente novamente.");
             setLoading(false);
         }
     }

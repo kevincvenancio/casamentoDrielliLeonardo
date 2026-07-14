@@ -1,86 +1,79 @@
 /**
- * Fonte unica de verdade para TODO o conteudo textual do site.
- * Edite este arquivo para personalizar nomes, datas, historia, enderecos etc.
- * Dados abaixo sao PLACEHOLDER plausiveis.
+ * Fonte única de verdade para TODO o conteúdo textual do site.
+ * Edite este arquivo para personalizar nomes, datas, história, endereços etc.
  */
 
 export const wedding = {
   couple: {
     bride: "Drielli",
     groom: "Leonardo",
-    hashtag: "#DrielliELeo",
+    // Sem hashtag definida. Se criarem uma, escreva aqui (ex.: "#LeoEDri2026")
+    // que ela aparece automaticamente no rodapé.
+    hashtag: "",
   },
 
-  // Data e hora da cerimonia (ISO 8601, fuso America/Sao_Paulo).
+  // Data e hora da cerimônia (ISO 8601, fuso America/Sao_Paulo).
   // Usada na contagem regressiva.
-  date: "2026-11-14T16:00:00-03:00",
-  dateLabel: "14 de Novembro de 2026",
-  timeLabel: "16h00",
+  date: "2026-12-06T15:00:00-03:00",
+  dateLabel: "6 de Dezembro de 2026",
+  timeLabel: "15h00",
 
   // Frase curta do hero
-  tagline: "Vao dizer sim!",
+  tagline: "Vão dizer sim!",
 
-  // Imagem de capa (coloque a foto em /public ou use uma URL)
+  // Imagem de capa (coloque a foto em /public/images/cover.jpg)
   coverImage: "/images/cover.jpg",
 
-  contactEmail: "casamento@drielli-leo.com.br",
+  contactEmail: "",
 
   story: {
-    title: "Nossa Historia",
+    title: "Nossa História",
     intro:
-      "Cada casal tem uma historia; a nossa comecou de um jeito simples e virou o que sempre sonhamos.",
+      "Nossa caminhada foi construída de momentos, encontros e pessoas especiais. O tempo passa sem que a gente perceba, e só temos a agradecer a quem esteve com a gente ao longo dessa jornada.",
+    // Para adicionar um marco, basta acrescentar um item aqui.
+    // O campo `text` é opcional -- se quiser contar a história de cada
+    // momento, escreva ali que aparece embaixo do título.
     timeline: [
-      {
-        year: "2018",
-        title: "O primeiro encontro",
-        text: "Nos conhecemos em uma festa de amigos em comum e conversamos a noite inteira.",
-      },
-      {
-        year: "2019",
-        title: "O namoro",
-        text: "Depois de meses de amizade, decidimos que era hora de tentar algo mais serio.",
-      },
-      {
-        year: "2022",
-        title: "Morando juntos",
-        text: "Alugamos nosso primeiro apartamento e adotamos a Nina, nossa cachorrinha.",
-      },
-      {
-        year: "2025",
-        title: "O pedido",
-        text: "Em uma viagem para a praia, veio o pedido de casamento ao por do sol.",
-      },
-      {
-        year: "2026",
-        title: "O grande dia",
-        text: "E agora queremos celebrar esse amor com quem faz parte da nossa vida.",
-      },
-    ],
+      { date: "2 de março de 2023", title: "A primeira conversa" },
+      { date: "22 de abril de 2023", title: "O primeiro date" },
+      { date: "8 de junho de 2023", title: "O pedido de namoro" },
+      { date: "7 de dezembro de 2025", title: "O pedido de noivado" },
+      { date: "6 de dezembro de 2026", title: "O grande dia" },
+    ] as { date: string; title: string; text?: string }[],
   },
 
+  // Cerimônia e festa acontecem no MESMO endereço.
   venue: {
-    ceremony: {
-      name: "Igreja Nossa Senhora da Paz",
-      address: "Rua das Flores, 123 - Centro, Sao Paulo - SP",
-      time: "16h00",
-      // URL para o embed do Google Maps (modo /embed)
-      mapEmbedUrl:
-        "https://www.google.com/maps?q=Praca+da+Se,+Sao+Paulo&output=embed",
-      mapLink: "https://maps.google.com/?q=Praca+da+Se,+Sao+Paulo",
-    },
-    party: {
-      name: "Espaco Jardim das Acacias",
-      address: "Av. dos Ipes, 456 - Jardins, Sao Paulo - SP",
-      time: "18h00",
-      mapEmbedUrl:
-        "https://www.google.com/maps?q=Parque+Ibirapuera,+Sao+Paulo&output=embed",
-      mapLink: "https://maps.google.com/?q=Parque+Ibirapuera,+Sao+Paulo",
-    },
+    name: "Villa Vezzane",
+    address: "R. Benedito Fontana, 510 - Mairiporã, SP, 07627-200",
+    time: "15h00",
+    mapEmbedUrl:
+      "https://www.google.com/maps?q=Villa+Vezzane,+R.+Benedito+Fontana,+510+-+Mairipor%C3%A3,+SP,+07627-200&output=embed",
+    mapLink:
+      "https://www.google.com/maps/search/?api=1&query=Villa+Vezzane%2C+R.+Benedito+Fontana%2C+510+-+Mairipor%C3%A3%2C+SP%2C+07627-200",
+  },
+
+  dressCode: {
+    title: "Dress Code",
+    style: "Esporte fino",
+    intro:
+      "Para nos ajudar a compor o clima da festa, pedimos que os trajes sigam o esporte fino.",
+    women: "Vestido midi ou longo.",
+    men: "Calça social com camisa. Se quiser, complemente com blazer ou gravata.",
+    // Cores reservadas para a noiva e o cortejo -- pedimos que as convidadas evitem.
+    avoidColors: [
+      { label: "Branco", hex: "#FFFFFF" },
+      { label: "Bege", hex: "#E8DCC8" },
+      { label: "Nude", hex: "#E3C5B5" },
+      { label: "Lilás", hex: "#C8A2C8" },
+      { label: "Azul serenity", hex: "#92A8D1" },
+    ],
+    avoidNote:
+      "Pedimos às convidadas que evitem estas cores. Elas estão reservadas para a noiva e o cortejo.",
   },
 
   rsvp: {
-    // Prazo para confirmacao de presenca (texto livre)
-    deadlineLabel: "Confirme ate 30 de Outubro de 2026",
+    deadlineLabel: "Confirme até 31 de Outubro de 2026",
     maxCompanions: 5,
   },
 } as const;

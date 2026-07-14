@@ -28,7 +28,7 @@ export default function HomePage() {
                     </p>
                     <div className="mt-8 flex flex-wrap justify-center gap-3">
                         <Link href="/rsvp" className="btn-primary bg-cream text-ink hover:bg-white">
-                            Confirmar Presenca
+                            Confirmar Presença
                         </Link>
                         <Link href="/presentes" className="btn-outline border-cream text-cream hover:bg-cream hover:text-ink">
                             Lista de Presentes
@@ -49,8 +49,8 @@ export default function HomePage() {
             <section className="bg-white py-16">
                 <div className="container-page grid gap-6 md:grid-cols-3">
                     {[
-                        { href: "/nossa-historia", title: "Nossa Historia", text: "Como tudo comecou." },
-                        { href: "/local", title: "Local", text: "Cerimonia e festa." },
+                        { href: "/nossa-historia", title: "Nossa História", text: "Como tudo começou." },
+                        { href: "/local", title: "Local", text: "Cerimônia e festa." },
                         { href: "/presentes", title: "Presentes", text: "Contribua com um presente." },
                     ].map((c) => (
                         <Link

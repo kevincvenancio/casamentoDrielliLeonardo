@@ -2,9 +2,10 @@ import Link from "next/link";
 import { wedding } from "@/config/wedding";
 
 const nav = [
-  { href: "/", label: "Inicio" },
-  { href: "/nossa-historia", label: "Nossa Historia" },
+  { href: "/", label: "Início" },
+  { href: "/nossa-historia", label: "Nossa História" },
   { href: "/local", label: "Local" },
+  { href: "/dress-code", label: "Dress Code" },
   { href: "/presentes", label: "Presentes" },
   { href: "/rsvp", label: "Confirmar" },
 ];

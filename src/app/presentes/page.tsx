@@ -19,15 +19,15 @@ export default async function GiftsPage() {
       <header className="mb-12 text-center">
         <h1 className="section-title">Lista de Presentes</h1>
         <p className="mx-auto mt-4 max-w-2xl text-stone">
-          Sua presenca ja e o maior presente. Mas se quiser nos presentear, aqui
-          vao algumas sugestoes. O pagamento e feito com seguranca via Mercado
-          Pago (cartao, Pix ou boleto).
+          Sua presença já é o maior presente. Mas se quiser nos presentear, aqui
+          vão algumas sugestões. O pagamento é feito com segurança via Mercado
+          Pago (cartão, Pix ou boleto).
         </p>
       </header>
 
       {loadError ? (
         <p className="rounded-lg border border-sand bg-white p-6 text-center text-stone">
-          Nao foi possivel carregar a lista agora. Verifique a configuracao do
+          Não foi possível carregar a lista agora. Verifique a configuração do
           Supabase. ({loadError})
         </p>
       ) : (
