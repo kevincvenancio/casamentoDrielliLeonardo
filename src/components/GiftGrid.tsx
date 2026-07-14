@@ -7,16 +7,19 @@ import { formatBRL } from "@/lib/format";
 function statusLabel(status: Gift["status"]) {
     if (status === "paid") return "Presenteado";
     if (status === "reserved") return "Reservado";
-    return "Disponivel";
+    return "Disponível";
 }
 
 export function GiftGrid({ gifts }: { gifts: Gift[] }) {
     const [selected, setSelected] = useState<Gift | null>(null);
+    // Imagens que falharam ao carregar (URL quebrada, fora do ar, offline).
+    // Sem isso, o card fica com um retangulo cinza vazio.
+    const [brokenImages, setBrokenImages] = useState<Record<string, true>>({});
 
     if (gifts.length === 0) {
         return (
             <p className="text-center text-stone">
-                A lista de presentes ainda esta sendo preparada. Volte em breve!
+                A lista de presentes ainda está sendo preparada. Volte em breve!
             </p>
         );
     }
@@ -31,15 +34,25 @@ export function GiftGrid({ gifts }: { gifts: Gift[] }) {
                             key={gift.id}
                             className="flex flex-col overflow-hidden rounded-2xl border border-sand bg-white"
                         >
-                            <div className="aspect-[4/3] w-full bg-sand">
-                                {gift.image_url && (
+                            <div className="flex aspect-[4/3] w-full items-center justify-center bg-sand">
+                                {gift.image_url && !brokenImages[gift.id] ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
                                         src={gift.image_url}
                                         alt={gift.title}
                                         className="h-full w-full object-cover"
                                         loading="lazy"
+                                        onError={() =>
+                                            setBrokenImages((prev) => ({
+                                                ...prev,
+                                                [gift.id]: true,
+                                            }))
+                                        }
                                     />
+                                ) : (
+                                    <span className="px-4 text-center font-serif text-lg text-stone">
+                                        {gift.title}
+                                    </span>
                                 )}
                             </div>
                             <div className="flex flex-1 flex-col p-5">
@@ -124,13 +137,14 @@ function CheckoutModal({
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-4"
+            className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-ink/50 p-4"
             onClick={onClose}
         >
             <div
-                className="w-full max-w-md rounded-2xl bg-white p-6"
+                className="mx-auto flex min-h-full w-full max-w-md items-center"
                 onClick={(e) => e.stopPropagation()}
             >
+            <div className="w-full rounded-2xl bg-white p-6">
                 <h3 className="font-serif text-2xl">Presentear</h3>
                 <p className="mt-1 text-stone">
                     {gift.title} — {formatBRL(gift.price_cents)}
@@ -172,6 +186,7 @@ function CheckoutModal({
                         </button>
                     </div>
                 </form>
+            </div>
             </div>
         </div>
     );

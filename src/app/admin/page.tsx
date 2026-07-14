@@ -42,7 +42,7 @@ export default async function AdminPage() {
 
       {/* Totais */}
       <div className="mb-10 grid gap-4 sm:grid-cols-3">
-        <StatCard label="Confirmacoes (sim)" value={String(attending.length)} />
+        <StatCard label="Confirmações (sim)" value={String(attending.length)} />
         <StatCard label="Total de pessoas" value={String(totalPeople)} />
         <StatCard
           label="Arrecadado (aprovado)"
@@ -53,7 +53,7 @@ export default async function AdminPage() {
       {/* Confirmacoes */}
       <section className="mb-12">
         <h2 className="mb-4 font-serif text-2xl">
-          Confirmacoes ({guests.length})
+          Confirmações ({guests.length})
         </h2>
         <div className="overflow-x-auto rounded-xl border border-sand bg-white">
           <table className="w-full text-left text-sm">
@@ -73,7 +73,7 @@ export default async function AdminPage() {
                   <td className="p-3 text-stone">
                     {g.email || g.phone || "-"}
                   </td>
-                  <td className="p-3">{g.attending ? "Sim" : "Nao"}</td>
+                  <td className="p-3">{g.attending ? "Sim" : "Não"}</td>
                   <td className="p-3">{g.companions ?? 0}</td>
                   <td className="p-3 text-stone">{g.message || "-"}</td>
                 </tr>
@@ -81,7 +81,7 @@ export default async function AdminPage() {
               {guests.length === 0 && (
                 <tr>
                   <td className="p-3 text-stone" colSpan={5}>
-                    Nenhuma confirmacao ainda.
+                    Nenhuma confirmação ainda.
                   </td>
                 </tr>
               )}

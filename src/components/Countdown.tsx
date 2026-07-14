@@ -14,26 +14,33 @@ function diff(target: number) {
 
 export function Countdown({ dateIso }: { dateIso: string }) {
   const target = new Date(dateIso).getTime();
-  const [t, setT] = useState(() => diff(target));
+
+  // Comeca nulo de proposito: o servidor e o browser calculariam segundos
+  // diferentes e o React acusaria erro de hidratacao, derrubando a pagina
+  // inteira para renderizacao no client. O relogio so comeca apos montar.
+  const [t, setT] = useState<ReturnType<typeof diff> | null>(null);
 
   useEffect(() => {
+    setT(diff(target));
     const id = setInterval(() => setT(diff(target)), 1000);
     return () => clearInterval(id);
   }, [target]);
 
   const items = [
-    { label: "dias", value: t.days },
-    { label: "horas", value: t.hours },
-    { label: "min", value: t.minutes },
-    { label: "seg", value: t.seconds },
+    { label: "dias", value: t?.days },
+    { label: "horas", value: t?.hours },
+    { label: "min", value: t?.minutes },
+    { label: "seg", value: t?.seconds },
   ];
 
   return (
     <div className="flex items-center justify-center gap-4 md:gap-8">
       {items.map((it) => (
         <div key={it.label} className="text-center">
-          <div className="font-serif text-3xl text-ink md:text-5xl">
-            {String(it.value).padStart(2, "0")}
+          <div className="font-serif text-3xl tabular-nums text-ink md:text-5xl">
+            {it.value === undefined
+              ? "--"
+              : String(it.value).padStart(2, "0")}
           </div>
           <div className="text-xs uppercase tracking-widest text-stone">
             {it.label}

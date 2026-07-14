@@ -30,7 +30,7 @@ const gifts = [
     {
         title: "Jogo de Panelas",
         description: "Conjunto completo de panelas antiaderentes para a cozinha nova.",
-        image_url: img("photo-1584990347449-a2d4c2c9b3f4"),
+        image_url: img("photo-1556909212-d5b604d0c90d"),
         price_cents: 45000,
         sort_order: 1,
     },
