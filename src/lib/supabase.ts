@@ -1,6 +1,19 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 /**
+ * Fetch que nunca usa o Data Cache do Next.js.
+ *
+ * O Next patcheia o fetch global e, por padrao, guarda o resultado das
+ * requisicoes GET do supabase-js no Data Cache -- servindo um retrato ANTIGO
+ * do banco mesmo em rotas `force-dynamic` (ex.: a lista de presentes ficava
+ * congelada, e a checagem de disponibilidade no checkout poderia usar dados
+ * velhos). Forcamos `cache: "no-store"` para que toda consulta leia o banco
+ * ao vivo.
+ */
+const noStoreFetch: typeof fetch = (input, init) =>
+  fetch(input, { ...init, cache: "no-store" });
+
+/**
  * Cliente publico (anon key). Seguro para o browser.
  * Respeita RLS: so consegue ler o que a policy publica permite (gifts).
  */
@@ -14,6 +27,7 @@ export function createPublicClient(): SupabaseClient {
   }
   return createClient(url, anonKey, {
     auth: { persistSession: false },
+    global: { fetch: noStoreFetch },
   });
 }
 
@@ -31,5 +45,6 @@ export function createServiceClient(): SupabaseClient {
   }
   return createClient(url, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
+    global: { fetch: noStoreFetch },
   });
 }
