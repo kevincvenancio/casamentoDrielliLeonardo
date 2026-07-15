@@ -63,7 +63,7 @@ const gifts = [
     {
         title: "Cooktop de última geração",
         description:
-            "Um cooktop de altíssima tecnologia (aquele fogãozinho infantil da Barbie).",
+            "Um cooktop de altíssima tecnologia.",
         image_url: img("cooktop-barbie.jpg"),
         price_cents: 42720,
         sort_order: 17,
