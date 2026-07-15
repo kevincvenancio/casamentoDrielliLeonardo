@@ -64,7 +64,7 @@ export default function HomePage() {
                         { href: "/nossa-historia", title: "Nossa História", text: "Como tudo começou." },
                         { href: "/local", title: "Local", text: "Cerimônia e festa." },
                         { href: "/dress-code", title: "Dress Code", text: "O que vestir." },
-                        { href: "/presentes", title: "Presentes", text: "Contribua com um presente." },
+                        { href: "/manual-do-convidado", title: "Manual", text: "Combinados para o dia." },
                     ].map((c) => (
                         <Link
                             key={c.href}
