@@ -10,11 +10,44 @@ function statusLabel(status: Gift["status"]) {
     return "Disponível";
 }
 
+/**
+ * Imagem do presente com fallback para o titulo quando a imagem falha
+ * (URL quebrada, arquivo ainda nao enviado, offline).
+ *
+ * Trata os DOIS momentos de falha:
+ * - onError: imagem que falha depois da hidratacao (ex.: lazy, fora da tela).
+ * - ref: imagem que ja falhou ANTES do React hidratar -- o evento `error`
+ *   dispara no DOM antes do handler existir e seria perdido; aqui checamos
+ *   `complete && naturalWidth === 0` assim que o elemento monta.
+ */
+function GiftImage({ gift }: { gift: Gift }) {
+    const [broken, setBroken] = useState(false);
+
+    if (!gift.image_url || broken) {
+        return (
+            <span className="px-4 text-center font-serif text-lg text-stone">
+                {gift.title}
+            </span>
+        );
+    }
+
+    return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+            ref={(el) => {
+                if (el && el.complete && el.naturalWidth === 0) setBroken(true);
+            }}
+            src={gift.image_url}
+            alt={gift.title}
+            className="h-full w-full object-cover"
+            loading="lazy"
+            onError={() => setBroken(true)}
+        />
+    );
+}
+
 export function GiftGrid({ gifts }: { gifts: Gift[] }) {
     const [selected, setSelected] = useState<Gift | null>(null);
-    // Imagens que falharam ao carregar (URL quebrada, fora do ar, offline).
-    // Sem isso, o card fica com um retangulo cinza vazio.
-    const [brokenImages, setBrokenImages] = useState<Record<string, true>>({});
 
     if (gifts.length === 0) {
         return (
@@ -35,25 +68,7 @@ export function GiftGrid({ gifts }: { gifts: Gift[] }) {
                             className="flex flex-col overflow-hidden rounded-2xl border border-sand bg-white"
                         >
                             <div className="flex aspect-[4/3] w-full items-center justify-center bg-sand">
-                                {gift.image_url && !brokenImages[gift.id] ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img
-                                        src={gift.image_url}
-                                        alt={gift.title}
-                                        className="h-full w-full object-cover"
-                                        loading="lazy"
-                                        onError={() =>
-                                            setBrokenImages((prev) => ({
-                                                ...prev,
-                                                [gift.id]: true,
-                                            }))
-                                        }
-                                    />
-                                ) : (
-                                    <span className="px-4 text-center font-serif text-lg text-stone">
-                                        {gift.title}
-                                    </span>
-                                )}
+                                <GiftImage gift={gift} />
                             </div>
                             <div className="flex flex-1 flex-col p-5">
                                 <h3 className="font-serif text-xl">{gift.title}</h3>

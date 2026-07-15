@@ -1,5 +1,5 @@
 /**
- * Script de seed: insere ~12 presentes de exemplo.
+ * Script de seed: insere a lista de presentes (versao "engracada").
  * Uso: npm run seed
  * Requer NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY no .env.local
  */
@@ -23,93 +23,82 @@ const supabase = createClient(url, serviceKey, {
     auth: { persistSession: false },
 });
 
-const img = (q: string) =>
-    `https://images.unsplash.com/${q}?auto=format&fit=crop&w=800&q=60`;
+// Imagens locais: coloque os arquivos em public/images/presentes/.
+// Enquanto o arquivo nao existir, o card mostra o titulo do presente (fallback).
+const img = (file: string) => `/images/presentes/${file}`;
 
 const gifts = [
     {
-        title: "Jogo de Panelas",
-        description: "Conjunto completo de panelas antiaderentes para a cozinha nova.",
-        image_url: img("photo-1556909212-d5b604d0c90d"),
-        price_cents: 45000,
-        sort_order: 1,
+        title: "Massagem relaxante para o noivo",
+        description:
+            "Uma massagem bem merecida para o noivo se recuperar depois de ver a conta final do casamento.",
+        image_url: img("massagem-noivo.jpg"),
+        price_cents: 33300,
+        sort_order: 13,
     },
     {
-        title: "Jogo de Taças de Cristal",
-        description: "Seis taças de cristal para brindar os momentos especiais.",
-        image_url: img("photo-1510812431401-41d2bd2722f3"),
-        price_cents: 22000,
-        sort_order: 2,
+        title: "Saco e luva de boxe para os noivos",
+        description:
+            "Para os noivos aliviarem a tensão dos preparativos. Bater no saco é mais barato que terapia.",
+        image_url: img("boxe-noivos.jpg"),
+        price_cents: 79900,
+        sort_order: 14,
     },
     {
-        title: "Cafeteira Espresso",
-        description: "Para os cafés da manhã preguiçosos de fim de semana.",
-        image_url: img("photo-1517668808822-9ebb02f2a0e6"),
-        price_cents: 68000,
-        sort_order: 3,
+        title: "Conjunto de controles remotos",
+        description:
+            "Um controle para cada um, para nunca mais ter briga de quem escolhe o filme.",
+        image_url: img("controles-remotos.jpg"),
+        price_cents: 8000,
+        sort_order: 15,
     },
     {
-        title: "Jogo de Cama Casal",
-        description: "Lençóis 400 fios, macios e aconchegantes.",
-        image_url: img("photo-1522771739844-6a9f6d5f14af"),
-        price_cents: 30000,
-        sort_order: 4,
+        title: "Cota amigos para sempre",
+        description:
+            "Garanta oficialmente o seu lugar cativo na nossa lista de amizades vitalícias.",
+        image_url: img("amigos-para-sempre.jpg"),
+        price_cents: 86420,
+        sort_order: 16,
     },
     {
-        title: "Aspirador Robô",
-        description: "Ajuda essencial para manter o lar sempre limpinho.",
-        image_url: img("photo-1558317374-067fb5f30001"),
-        price_cents: 120000,
-        sort_order: 5,
+        title: "Cooktop de última geração",
+        description:
+            "Um cooktop de altíssima tecnologia (aquele fogãozinho infantil da Barbie).",
+        image_url: img("cooktop-barbie.jpg"),
+        price_cents: 42720,
+        sort_order: 17,
     },
     {
-        title: "Liquidificador de Alta Potência",
-        description: "Para vitaminas, sopas e receitas do dia a dia.",
-        image_url: img("photo-1570222094114-d054a817e56b"),
-        price_cents: 38000,
-        sort_order: 6,
+        title: "Seja nosso parente favorito",
+        description:
+            "Suba na hierarquia da família e conquiste o cobiçado título de parente favorito do casal.",
+        image_url: img("parente-favorito.jpg"),
+        price_cents: 97033,
+        sort_order: 18,
     },
     {
-        title: "Kit Churrasco",
-        description: "Utensílios completos para os encontros de domingo.",
-        image_url: img("photo-1555939594-58d7cb561ad1"),
-        price_cents: 26000,
-        sort_order: 7,
+        title: "Primeiro lugar da fila do buffet",
+        description:
+            "Passe na frente de todo mundo e ataque o buffet antes que acabe o camarão.",
+        image_url: img("fila-buffet.jpg"),
+        price_cents: 36685,
+        sort_order: 19,
     },
     {
-        title: "Cota da Lua de Mel",
-        description: "Contribua com nossa viagem dos sonhos após o casamento.",
-        image_url: img("photo-1507525428034-b723cf961d3e"),
-        price_cents: 15000,
-        sort_order: 8,
+        title: "Levar alguém que não foi convidado",
+        description:
+            "O passe VIP mais caro da festa: traga aquele acompanhante que não estava na lista.",
+        image_url: img("convidado-extra.jpg"),
+        price_cents: 688022,
+        sort_order: 20,
     },
     {
-        title: "Jantar Romântico",
-        description: "Nos ajude a celebrar com um jantar especial a dois.",
-        image_url: img("photo-1414235077428-338989a2e8c0"),
-        price_cents: 20000,
-        sort_order: 9,
-    },
-    {
-        title: "Air Fryer",
-        description: "Praticidade e saúde para o dia a dia da cozinha.",
-        image_url: img("photo-1626074353765-517a681e40be"),
-        price_cents: 42000,
-        sort_order: 10,
-    },
-    {
-        title: "Smart TV 50\"",
-        description: "Para as noites de filme aconchegadas no sofá.",
-        image_url: img("photo-1593359677879-a4bb92f829d1"),
-        price_cents: 250000,
-        sort_order: 11,
-    },
-    {
-        title: "Conjunto de Toalhas",
-        description: "Toalhas felpudas de banho e rosto para o casal.",
-        image_url: img("photo-1600369671236-e74521d4b6ad"),
-        price_cents: 18000,
-        sort_order: 12,
+        title: "Cobertor para a noiva",
+        description:
+            "Um cobertor extra para a noiva, que já vive coberta de razão mas nunca é demais.",
+        image_url: img("cobertor-noiva.jpg"),
+        price_cents: 39349,
+        sort_order: 21,
     },
 ];
 
