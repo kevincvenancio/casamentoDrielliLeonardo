@@ -2,45 +2,12 @@ import { wedding } from "@/config/wedding";
 
 export const metadata = { title: "Dress Code" };
 
-type Foto = { src: string; alt: string };
-
-function CartaoLook({
-  titulo,
-  texto,
-  fotos,
-}: {
-  titulo: string;
-  texto: string;
-  fotos: readonly Foto[];
-}) {
-  return (
-    <div className="overflow-hidden rounded-2xl border border-sand bg-white">
-      {fotos.length > 0 && (
-        // Sem aspect-ratio fixo de proposito: as fotos de referencia vem com
-        // proporcoes diferentes e um recorte forcado cortava os rostos.
-        <div className="grid grid-cols-1 gap-px bg-sand">
-          {fotos.map((foto) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              key={foto.src}
-              src={foto.src}
-              alt={foto.alt}
-              className="h-auto w-full bg-sand"
-              loading="lazy"
-            />
-          ))}
-        </div>
-      )}
-      <div className="p-8">
-        <p className="text-xs uppercase tracking-widest text-stone">{titulo}</p>
-        <p className="mt-3 text-stone">{texto}</p>
-      </div>
-    </div>
-  );
-}
-
 export default function DressCodePage() {
   const { dressCode } = wedding;
+  const looks = [
+    { label: "Elas", texto: dressCode.women, foto: dressCode.womenPhotos[0] },
+    { label: "Eles", texto: dressCode.men, foto: dressCode.menPhotos[0] },
+  ];
 
   return (
     <div className="container-page py-16">
@@ -50,21 +17,32 @@ export default function DressCodePage() {
         <p className="mx-auto mt-4 max-w-2xl text-stone">{dressCode.intro}</p>
       </header>
 
-      <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
-        <CartaoLook
-          titulo="Elas"
-          texto={dressCode.women}
-          fotos={dressCode.womenPhotos}
-        />
-        <CartaoLook
-          titulo="Eles"
-          texto={dressCode.men}
-          fotos={dressCode.menPhotos}
-        />
+      {/* Guia por publico: a orientacao em texto e a foto de referencia ficam
+          em blocos separados, com a foto num quadro uniforme (3:4). */}
+      <div className="mx-auto grid max-w-3xl gap-8 sm:grid-cols-2">
+        {looks.map((look) => (
+          <figure key={look.label} className="text-center">
+            {look.foto && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={look.foto.src}
+                alt={look.foto.alt}
+                className="aspect-[3/4] w-full rounded-2xl border border-sand object-cover"
+                loading="lazy"
+              />
+            )}
+            <figcaption className="mt-4">
+              <p className="text-xs uppercase tracking-widest text-stone">
+                {look.label}
+              </p>
+              <p className="mt-1 text-stone">{look.texto}</p>
+            </figcaption>
+          </figure>
+        ))}
       </div>
 
       {/* Cores a evitar */}
-      <div className="mx-auto mt-6 max-w-3xl rounded-2xl border border-sand bg-white p-8">
+      <div className="mx-auto mt-16 max-w-3xl rounded-2xl border border-sand bg-white p-8">
         <p className="text-xs uppercase tracking-widest text-stone">
           Cores a evitar
         </p>

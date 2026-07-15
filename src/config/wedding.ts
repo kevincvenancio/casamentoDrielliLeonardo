@@ -73,13 +73,13 @@ export const wedding = {
     womenPhotos: [
       {
         src: "/images/dress-code/elas-vestidos-midi.jpeg",
-        alt: "Duas convidadas em vestidos midi, um verde e um laranja",
+        alt: "Dois vestidos midi de referência, um verde e um laranja",
       },
     ],
     menPhotos: [
       {
         src: "/images/dress-code/eles-calca-camisa.jpeg",
-        alt: "Convidado de calça social cinza, camisa azul-marinho e sapato social",
+        alt: "Calça social cinza com camisa azul-marinho e sapato social",
       },
     ],
 
@@ -120,12 +120,12 @@ export const wedding = {
       {
         icon: "envelope",
         title: "Convidado não convida",
-        text: "O convite vale para as pessoas nomeadas nele. Se quiser levar alguém, fale com a gente antes.",
+        text: "O convite vale para as pessoas nomeadas nele.",
       },
       {
         icon: "clock",
         title: "Não se atrase",
-        text: "A cerimônia começa às 15h. Chegue com antecedência para não perder a entrada.",
+        text: "A cerimônia começa às 16h. Chegue com antecedência para não perder a entrada.",
       },
       {
         icon: "church",
