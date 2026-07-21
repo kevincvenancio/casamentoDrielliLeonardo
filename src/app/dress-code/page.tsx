@@ -5,8 +5,8 @@ export const metadata = { title: "Dress Code" };
 export default function DressCodePage() {
   const { dressCode } = wedding;
   const looks = [
-    { label: "Elas", texto: dressCode.women, foto: dressCode.womenPhotos[0] },
-    { label: "Eles", texto: dressCode.men, foto: dressCode.menPhotos[0] },
+    { label: "Elas", texto: dressCode.women },
+    { label: "Eles", texto: dressCode.men },
   ];
 
   return (
@@ -17,27 +17,20 @@ export default function DressCodePage() {
         <p className="mx-auto mt-4 max-w-2xl text-stone">{dressCode.intro}</p>
       </header>
 
-      {/* Guia por publico: a orientacao em texto e a foto de referencia ficam
-          em blocos separados, com a foto num quadro uniforme (3:4). */}
-      <div className="mx-auto grid max-w-3xl gap-8 sm:grid-cols-2">
+      {/* Guia por publico, so em texto. Sem a foto de referencia ao lado, a
+          orientacao vira o conteudo principal do bloco: ganha cartao proprio
+          e tipografia serifada para ter presenca. */}
+      <div className="mx-auto grid max-w-3xl gap-6 sm:grid-cols-2">
         {looks.map((look) => (
-          <figure key={look.label} className="text-center">
-            {look.foto && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={look.foto.src}
-                alt={look.foto.alt}
-                className="aspect-[3/4] w-full rounded-2xl border border-sand object-cover"
-                loading="lazy"
-              />
-            )}
-            <figcaption className="mt-4">
-              <p className="text-xs uppercase tracking-widest text-stone">
-                {look.label}
-              </p>
-              <p className="mt-1 text-stone">{look.texto}</p>
-            </figcaption>
-          </figure>
+          <div
+            key={look.label}
+            className="flex flex-col justify-center rounded-2xl border border-sand bg-white p-8 text-center"
+          >
+            <p className="text-xs uppercase tracking-widest text-stone">
+              {look.label}
+            </p>
+            <p className="mt-3 font-serif text-xl text-ink">{look.texto}</p>
+          </div>
         ))}
       </div>
 
@@ -77,6 +70,28 @@ export default function DressCodePage() {
           <img
             src={dressCode.palettePhoto.src}
             alt={dressCode.palettePhoto.alt}
+            className="w-full bg-sand"
+            loading="lazy"
+          />
+        </div>
+      )}
+
+      {/* Inspiracao para eles */}
+      {dressCode.menCollagePhoto && (
+        <div className="mx-auto mt-6 max-w-3xl overflow-hidden rounded-2xl border border-sand bg-white">
+          <div className="p-8 pb-6">
+            <p className="text-xs uppercase tracking-widest text-stone">
+              Inspiração para eles
+            </p>
+            <p className="mt-3 text-stone">
+              Terno completo ou calça social com camisa — os dois funcionam.
+              Blazer e gravata ficam a seu critério.
+            </p>
+          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={dressCode.menCollagePhoto.src}
+            alt={dressCode.menCollagePhoto.alt}
             className="w-full bg-sand"
             loading="lazy"
           />

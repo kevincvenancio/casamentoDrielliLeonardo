@@ -65,28 +65,18 @@ export const wedding = {
     women: "Vestido midi ou longo.",
     men: "Calça social com camisa. Se quiser, complemente com blazer ou gravata.",
 
-    // Fotos de referencia. Para adicionar mais:
-    // 1. salve o arquivo em /public/images/dress-code/
-    // 2. acrescente uma linha aqui com src e alt.
-    // Atencao: a foto e um EXEMPLO do que vestir -- nao inclua imagens com as
-    // cores da lista `avoidColors`, nem com camiseta/tenis (nao e esporte fino).
-    womenPhotos: [
-      {
-        src: "/images/dress-code/elas-vestidos-midi.jpeg",
-        alt: "Dois vestidos midi de referência, um verde e um laranja",
-      },
-    ],
-    menPhotos: [
-      {
-        src: "/images/dress-code/eles-calca-camisa.jpeg",
-        alt: "Calça social cinza com camisa azul-marinho e sapato social",
-      },
-    ],
-
-    // Colagem de referencia de cores permitidas.
+    // Colagens de referencia, exibidas no fim da pagina.
+    // Para trocar: salve o arquivo em /public/images/dress-code/ e ajuste o
+    // src aqui. Atencao: a foto e um EXEMPLO do que vestir -- nao inclua
+    // imagens com camiseta/tenis (nao e esporte fino), nem, no caso das
+    // convidadas, com as cores da lista `avoidColors`.
     palettePhoto: {
       src: "/images/dress-code/paleta-cores.jpeg",
       alt: "Colagem com dezenas de vestidos em cores variadas: verde, azul, vinho, mostarda, terracota",
+    },
+    menCollagePhoto: {
+      src: "/images/dress-code/eles-referencias.jpeg",
+      alt: "Colagem com quinze looks masculinos: ternos azul-marinho, preto e cinza, blazers e calças sociais com camisa",
     },
     // Cores reservadas para a noiva e o cortejo -- pedimos que as convidadas evitem.
     avoidColors: [
