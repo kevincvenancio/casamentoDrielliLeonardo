@@ -14,9 +14,9 @@ export const wedding = {
 
   // Data e hora da cerimônia (ISO 8601, fuso America/Sao_Paulo).
   // Usada na contagem regressiva.
-  date: "2026-12-06T16:00:00-03:00",
+  date: "2026-12-06T15:00:00-03:00",
   dateLabel: "6 de Dezembro de 2026",
-  timeLabel: "16h00",
+  timeLabel: "15h00",
 
   // Frase curta do hero
   tagline: "Vão dizer sim!",
@@ -50,7 +50,7 @@ export const wedding = {
   venue: {
     name: "Villa Vezzane",
     address: "R. Benedito Fontana, 510 - Mairiporã, SP, 07627-200",
-    time: "16h00",
+    time: "15h00",
     mapEmbedUrl:
       "https://www.google.com/maps?q=Villa+Vezzane,+R.+Benedito+Fontana,+510+-+Mairipor%C3%A3,+SP,+07627-200&output=embed",
     mapLink:
@@ -125,7 +125,7 @@ export const wedding = {
       {
         icon: "clock",
         title: "Não se atrase",
-        text: "A cerimônia começa às 16h. Chegue com antecedência para não perder a entrada.",
+        text: "A cerimônia começa às 15h. Chegue com antecedência para não perder a entrada.",
       },
       {
         icon: "church",
@@ -135,7 +135,7 @@ export const wedding = {
       {
         icon: "camera",
         title: "Não atrapalhe os fotógrafos",
-        text: "Eles têm um roteiro a cumprir. Aproveite o momento com os olhos — as fotos a gente compartilha depois.",
+        text: "As fotos são muito bem-vindas e ficaremos felizes em vê-las depois, mas cuidado para não atrapalhar os fotógrafos.",
       },
       {
         icon: "dress",
