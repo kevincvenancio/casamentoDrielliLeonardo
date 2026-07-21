@@ -72,8 +72,14 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ received: true, outcome }, { status: 200 });
   } catch (err) {
-    // Erro ao processar: 500 faz o MP reenviar (nosso fluxo e idempotente).
     const message = err instanceof Error ? err.message : "processing error";
+    // A mensagem so ia no corpo da resposta, que os logs da Vercel nao
+    // guardam -- uma falha aqui virava um 500 sem causa visivel.
+    console.error("[webhook/mercadopago] falha ao processar", {
+      dataId,
+      message,
+    });
+    // Erro ao processar: 500 faz o MP reenviar (nosso fluxo e idempotente).
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
