@@ -27,78 +27,77 @@ const supabase = createClient(url, serviceKey, {
 // Enquanto o arquivo nao existir, o card mostra o titulo do presente (fallback).
 const img = (file: string) => `/images/presentes/${file}`;
 
+// ATENCAO: este arquivo contem apenas o LOTE ATUAL a ser inserido.
+// O seed usa INSERT (nao upsert), entao rodar `npm run seed` duas vezes com a
+// mesma lista cria presentes duplicados no banco. O fluxo e: substituir a lista
+// abaixo pelo novo lote, rodar uma vez, e commitar.
+// Lotes ja inseridos: sort_order 1-12 (tradicionais) e 13-21 (engracados).
 const gifts = [
+    // ---- Opcoes de R$ 30 ----
     {
-        title: "Massagem relaxante para o noivo",
+        title: "Pilhas para o controle remoto",
         description:
-            "Uma massagem bem merecida para o noivo se recuperar depois de ver a conta final do casamento.",
-        image_url: img("massagem-noivo.jpg"),
-        price_cents: 33300,
-        sort_order: 13,
+            "Alguém já deu os controles remotos, mas esqueceu que eles não funcionam no vácuo.",
+        image_url: img("pilhas-controle.jpg"),
+        price_cents: 3000,
+        sort_order: 22,
     },
     {
-        title: "Saco e luva de boxe para os noivos",
+        title: "Cota do papel higiênico",
         description:
-            "Para os noivos aliviarem a tensão dos preparativos. Bater no saco é mais barato que terapia.",
-        image_url: img("boxe-noivos.jpg"),
-        price_cents: 79900,
-        sort_order: 14,
+            "O presente que ninguém coloca na lista, mas que todo casal descobre que precisa no terceiro dia.",
+        image_url: img("papel-higienico.jpg"),
+        price_cents: 3000,
+        sort_order: 23,
     },
     {
-        title: "Conjunto de controles remotos",
+        title: "Um chopp para o noivo",
         description:
-            "Um controle para cada um, para nunca mais ter briga de quem escolhe o filme.",
-        image_url: img("controles-remotos.jpg"),
-        price_cents: 8000,
-        sort_order: 15,
+            "Ele vai precisar. Talvez não hoje, talvez não amanhã, mas vai.",
+        image_url: img("chopp-noivo.jpg"),
+        price_cents: 3000,
+        sort_order: 24,
     },
     {
-        title: "Cota amigos para sempre",
+        title: "Cota do café da manhã de recém-casados",
         description:
-            "Garanta oficialmente o seu lugar cativo na nossa lista de amizades vitalícias.",
-        image_url: img("amigos-para-sempre.jpg"),
-        price_cents: 86420,
-        sort_order: 16,
+            "Pão na chapa e café coado para o primeiro café da manhã oficial de casados.",
+        image_url: img("cafe-da-manha.jpg"),
+        price_cents: 3000,
+        sort_order: 25,
+    },
+    // ---- Opcoes de R$ 50 ----
+    {
+        title: "Toma 50 reais",
+        description:
+            "Sem metáfora, sem piada, sem embalagem de presente. É cinquenta reais mesmo. E a gente agradece de coração.",
+        image_url: img("nota-50-reais.jpg"),
+        price_cents: 5000,
+        sort_order: 26,
     },
     {
-        title: "Cooktop de última geração",
+        title: "Cota do delivery de domingo",
         description:
-            "Um cooktop de altíssima tecnologia.",
-        image_url: img("cooktop-barbie.jpg"),
-        price_cents: 42720,
-        sort_order: 17,
+            "Para aquele domingo em que ninguém dos dois vai querer cozinhar. Ou seja: todos eles.",
+        image_url: img("delivery-domingo.jpg"),
+        price_cents: 5000,
+        sort_order: 27,
     },
     {
-        title: "Seja nosso parente favorito",
+        title: "Uma planta que prometemos não matar",
         description:
-            "Suba na hierarquia da família e conquiste o cobiçado título de parente favorito do casal.",
-        image_url: img("parente-favorito.jpg"),
-        price_cents: 97033,
-        sort_order: 18,
+            "Você dá a planta, a gente dá o melhor de si. Não podemos garantir o resultado.",
+        image_url: img("planta.jpg"),
+        price_cents: 5000,
+        sort_order: 28,
     },
     {
-        title: "Primeiro lugar da fila do buffet",
+        title: "Cota do Wi-Fi do primeiro mês",
         description:
-            "Passe na frente de todo mundo e ataque o buffet antes que acabe o camarão.",
-        image_url: img("fila-buffet.jpg"),
-        price_cents: 36685,
-        sort_order: 19,
-    },
-    {
-        title: "Levar alguém que não foi convidado",
-        description:
-            "O passe VIP mais caro da festa: traga aquele acompanhante que não estava na lista.",
-        image_url: img("convidado-extra.jpg"),
-        price_cents: 688022,
-        sort_order: 20,
-    },
-    {
-        title: "Cobertor para a noiva",
-        description:
-            "Um cobertor extra para a noiva, que já vive coberta de razão mas nunca é demais.",
-        image_url: img("cobertor-noiva.jpg"),
-        price_cents: 39349,
-        sort_order: 21,
+            "Casamento é sobre parceria, diálogo e uma conexão estável para assistir série na cama.",
+        image_url: img("wifi.jpg"),
+        price_cents: 5000,
+        sort_order: 29,
     },
 ];
 
