@@ -33,7 +33,6 @@ const img = (file: string) => `/images/presentes/${file}`;
 // abaixo pelo novo lote, rodar uma vez, e commitar.
 // Lotes ja inseridos: sort_order 1-12 (tradicionais) e 13-21 (engracados).
 const gifts = [
-    // ---- Opcoes de R$ 30 ----
     {
         title: "Pilhas para o controle remoto",
         description:
@@ -47,7 +46,7 @@ const gifts = [
         description:
             "O presente que ninguém coloca na lista, mas que todo casal descobre que precisa no terceiro dia.",
         image_url: img("papel-higienico.jpg"),
-        price_cents: 3000,
+        price_cents: 6000,
         sort_order: 23,
     },
     {
@@ -63,10 +62,9 @@ const gifts = [
         description:
             "Pão na chapa e café coado para o primeiro café da manhã oficial de casados.",
         image_url: img("cafe-da-manha.jpg"),
-        price_cents: 3000,
+        price_cents: 12000,
         sort_order: 25,
     },
-    // ---- Opcoes de R$ 50 ----
     {
         title: "Toma 50 reais",
         description:
@@ -96,7 +94,7 @@ const gifts = [
         description:
             "Casamento é sobre parceria, diálogo e uma conexão estável para assistir série na cama.",
         image_url: img("wifi.jpg"),
-        price_cents: 5000,
+        price_cents: 15000,
         sort_order: 29,
     },
 ];
