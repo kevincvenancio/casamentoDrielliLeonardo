@@ -204,4 +204,4 @@ na Vercel e faça um novo Redeploy. Sem esse segredo o webhook rejeita tudo com
 401 (comportamento intencional: requisições não assinadas são recusadas).
 
 Em produção a Vercel já fornece HTTPS público, então **o ngrok não é
-necessário** — ele só serve para testar o webhook na sua máquina (seção 5).
+necessário** — ele só serve para testar o webhook na sua máquina (seção 5). 
