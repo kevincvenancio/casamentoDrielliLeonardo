@@ -1,5 +1,6 @@
 import { listGifts } from "@/lib/gifts";
 import { GiftGrid } from "@/components/GiftGrid";
+import { PixSection } from "@/components/PixSection";
 import type { Gift } from "@/lib/types";
 
 export const metadata = { title: "Lista de Presentes" };
@@ -33,6 +34,8 @@ export default async function GiftsPage() {
       ) : (
         <GiftGrid gifts={gifts} />
       )}
+
+      <PixSection />
     </div>
   );
 }

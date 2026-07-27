@@ -164,6 +164,20 @@ export const wedding = {
     deadlineLabel: "Confirme até 31 de Outubro de 2026",
     maxCompanions: 5,
   },
+
+  // Pix direto, exibido no fim da lista de presentes para quem prefere
+  // mandar um valor livre em vez de escolher um presente.
+  // `key` e o "copia e cola" (payload EMV). O CRC no fim precisa bater com o
+  // resto da string -- se for trocar a chave, gere o payload completo por um
+  // meio confiavel (app do banco / gerador oficial), nao edite na mao.
+  // `qrImage` deve codificar exatamente esse mesmo payload.
+  pix: {
+    title: "Não encontrou o que procurava?",
+    text: "Se preferir, faça um Pix diretamente com o valor que quiser. É só escanear o QR Code ou copiar a chave abaixo.",
+    recipient: "Leonardo Martins Peres",
+    qrImage: "/images/pix/QRcodePIXLeo.jpg",
+    key: "00020101021126580014BR.GOV.BCB.PIX01368a85d4c9-f5de-4897-934a-300877d1c6445204000053039865802BR5922LEONARDO MARTINS PERES6009SAO PAULO62080504daqr6304098F",
+  },
 } as const;
 
 export type WeddingConfig = typeof wedding;
