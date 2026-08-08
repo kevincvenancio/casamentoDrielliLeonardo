@@ -26,8 +26,9 @@ src/
  mercadopago.ts <- criar preferencia, consultar pagamento, assinatura
  webhook-core.ts <- nucleo idempotente do webhook (testavel)
  webhook-store.ts <- WebhookStore sobre Supabase
- reserve-core.ts <- reserva condicional de presente (testavel)
- gifts.ts <- leitura da lista + expiracao LAZY de reservas
+ reserve-core.ts <- reserva de UMA unidade do presente (testavel)
+ stock.ts <- calculo de estoque, funcao pura (testavel)
+ gifts.ts <- leitura da lista ja com o estoque calculado
  app/
  api/checkout <- POST /api/checkout
  api/webhook/mercadopago<- POST webhook do MP
@@ -37,9 +38,42 @@ src/
  pagamento/{sucesso,pendente,erro}, admin
 supabase/
  migrations/0001_init.sql <- schema + RLS
+ migrations/0003_gift_stock.sql <- estoque + funcao reserve_gift_unit
+ estoque.sql <- receitas prontas p/ gerenciar estoque
  seed.ts <- ~12 presentes de exemplo
-tests/ <- testes do webhook e da reserva (vitest)
+tests/ <- testes de estoque, reserva e webhook (vitest)
 ```
+
+## Estoque dos presentes
+
+Um presente comprado **não sai da lista**. Quantas vezes ele pode ser
+comprado vem da coluna `gifts.stock_total`:
+
+| `stock_total` | Comportamento |
+| --- | --- |
+| `NULL` (padrão) | **Ilimitado** — nunca sai da lista |
+| `10` | Some da lista depois da 10ª compra |
+
+A disponibilidade é **calculada** a partir de `payments`, não guardada:
+
+```
+restante = stock_total − (pagamentos approved + pendentes dentro dos 20 min)
+```
+
+Ou seja: pagamento aprovado consome uma unidade, rejeitado/estornado
+devolve, e um checkout abandonado libera sozinho quando a janela vence.
+Nada precisa ser "destravado" na mão.
+
+Para limitar um presente, rode no **SQL Editor** do Supabase:
+
+```sql
+update public.gifts set stock_total = 10
+ where title = 'Jogo de taças de cristal';
+```
+
+`supabase/estoque.sql` tem as receitas prontas (ver situação atual, limitar
+um item ou todos, voltar para ilimitado, esconder um presente). O painel
+`/admin` mostra vendidos, em pagamento e restante por presente.
 
 ## 1. Configuração local
 
@@ -59,9 +93,11 @@ história, endereços, mapas). Opcional: coloque a foto de capa em
  - `Project URL` → `NEXT_PUBLIC_SUPABASE_URL`
  - `anon public` → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
  - `service_role` (secret) → `SUPABASE_SERVICE_ROLE_KEY`
-3. Rode a migration: abra **SQL Editor**, cole o conteúdo de
- `supabase/migrations/0001_init.sql` e execute.
- (Cria tabelas `guests`, `gifts`, `payments`, índices e RLS.)
+3. Rode as migrations **em ordem**: abra o **SQL Editor** e execute o conteúdo
+ de cada arquivo de `supabase/migrations/` (`0001_init.sql` → tabelas,
+ índices e RLS; `0002_companion_names.sql` → nomes dos acompanhantes;
+ `0003_gift_stock.sql` → estoque dos presentes). Todas podem ser rodadas
+ mais de uma vez sem estragar nada.
 4. Popule a lista de presentes:
  ```bash
  npm run seed
@@ -117,15 +153,17 @@ ngrok http 3000 # gera https://xxxx.ngrok-free.app
 
 ## Fluxo de pagamento (resumo)
 
-1. `POST /api/checkout` valida o presente no servidor (preço lido do banco),
- reserva por 20 min com `UPDATE ... WHERE status='available'` (0 linhas → 409),
- cria o `payment` pending, cria a preferência no MP e devolve o `init_point`.
+1. `POST /api/checkout` chama a função SQL `reserve_gift_unit`, que numa única
+ transação trava a linha do presente (`FOR UPDATE`), confere o estoque e cria
+ o `payment` pending com o preço lido do banco (nunca do client). Sem estoque
+ → 409. Em seguida cria a preferência no MP e devolve o `init_point`.
 2. `POST /api/webhook/mercadopago` valida a assinatura, ignora o payload como
  fonte de verdade e consulta `GET /v1/payments/{id}` na API do MP. É
- **idempotente** (checa `mp_payment_id` + constraint unique). Aprovado →
- `gift` vira `paid`; rejeitado/cancelado → `gift` volta a `available`.
-3. Reservas expiradas voltam a `available` de forma **lazy** na leitura da
- lista (sem cron job).
+ **idempotente** (checa `mp_payment_id` + constraint unique). Aprovado → a
+ unidade é vendida; rejeitado/cancelado/estornado → volta ao estoque. O
+ webhook **não escreve em `gifts`**.
+3. Reservas expiradas não precisam ser limpas: um `payment` pendente fora da
+ janela simplesmente para de contar (sem cron job e sem `UPDATE`).
 
 ## Painel administrativo
 

@@ -41,15 +41,5 @@ export function createSupabaseWebhookStore(
         .eq("id", paymentId);
       if (error) throw new Error(error.message);
     },
-
-    async setGiftStatus(giftId, status, opts): Promise<void> {
-      const update: Record<string, unknown> = { status };
-      if (opts?.clearReserved) update.reserved_until = null;
-      const { error } = await supabase
-        .from("gifts")
-        .update(update)
-        .eq("id", giftId);
-      if (error) throw new Error(error.message);
-    },
   };
 }

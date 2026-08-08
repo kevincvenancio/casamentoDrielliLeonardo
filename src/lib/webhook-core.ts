@@ -21,12 +21,6 @@ export interface WebhookStore {
       raw: unknown;
     }
   ): Promise<void>;
-  /** Atualiza o status do gift. clearReserved limpa reserved_until. */
-  setGiftStatus(
-    giftId: string,
-    status: "available" | "paid",
-    opts?: { clearReserved?: boolean }
-  ): Promise<void>;
 }
 
 export type WebhookOutcome =
@@ -43,7 +37,11 @@ const FINAL_STATUSES: PaymentStatus[] = ["approved", "rejected", "refunded"];
  * Nucleo do processamento do webhook. Puro em relacao a IO externo:
  * recebe o status ja consultado na API do MP + um store injetavel.
  *
- * Garante idempotencia e a maquina de estados presente/pagamento.
+ * Garante idempotencia e a maquina de estados do pagamento.
+ *
+ * O presente NAO e tocado aqui: com estoque, a disponibilidade e derivada
+ * dos proprios pagamentos (ver stock.ts). Mudar o status do payment ja
+ * ocupa a unidade (approved) ou devolve a vaga (rejected/refunded).
  */
 export async function processPaymentNotification(args: {
   info: MpPaymentInfo;
@@ -78,9 +76,7 @@ export async function processPaymentNotification(args: {
       buyerEmail: info.payer_email,
       raw: info.raw,
     });
-    if (payment.gift_id) {
-      await store.setGiftStatus(payment.gift_id, "paid");
-    }
+    // A unidade passa de "reservada" para "vendida" so por virar approved.
     return "approved";
   }
 
@@ -92,11 +88,7 @@ export async function processPaymentNotification(args: {
       buyerEmail: info.payer_email,
       raw: info.raw,
     });
-    if (payment.gift_id) {
-      await store.setGiftStatus(payment.gift_id, "available", {
-        clearReserved: true,
-      });
-    }
+    // Deixa de ser 'pending': a unidade volta ao estoque na hora.
     return "rejected";
   }
 
@@ -108,11 +100,7 @@ export async function processPaymentNotification(args: {
       buyerEmail: info.payer_email,
       raw: info.raw,
     });
-    if (payment.gift_id) {
-      await store.setGiftStatus(payment.gift_id, "available", {
-        clearReserved: true,
-      });
-    }
+    // Estorno tambem devolve a unidade ao estoque.
     return "refunded";
   }
 

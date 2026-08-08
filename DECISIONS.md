@@ -35,20 +35,47 @@ opção mais simples que funcione corretamente.
  inválida; 500 em erro de processamento (o MP reenviará, e o fluxo é
  idempotente). Optou-se por processar antes de responder, mantendo o handler
  enxuto, em vez de fila/worker (desnecessário para o volume).
-- **Refund/chargeback** também liberam o presente de volta para `available`
+- **Refund/chargeback** também liberam a unidade de volta ao estoque
  (além de rejected/cancelled), por segurança.
 
-## Reservas
+## Estoque (o mesmo presente comprado várias vezes)
 
-- **Expiração lazy** (sem cron): antes de ler a lista e antes de reservar,
- presentes `reserved` com `reserved_until < now()` voltam a `available`.
-- Janela de reserva: **20 minutos**.
+- **Antes:** cada linha de `gifts` era uma unidade (`status` available →
+ reserved → paid). Depois da primeira compra o presente sumia da lista.
+- **Agora:** a disponibilidade é **derivada da tabela `payments`**, que já
+ tinha uma linha por tentativa de compra:
+ `restante = stock_total − (approved + pending dentro da janela)`.
+ `stock_total IS NULL` = **ilimitado** (padrão).
+- Derivar em vez de manter um contador em `gifts` foi a escolha porque:
+ não existe contador para dessincronizar; a reserva expira sozinha (a
+ janela vive em cada `payment`); e um pagamento rejeitado/estornado libera
+ a vaga sem nenhuma escrita extra — o webhook não toca mais em `gifts`.
+- `gifts.status` e `gifts.reserved_until` viraram **colunas legadas**: a
+ migration 0003 zera as duas e ninguém mais as lê ou escreve. Ficaram no
+ schema (marcadas com `comment on column`) por serem inofensivas; removê-las
+ exigiria coordenar deploy e migration num site que já está no ar.
+- **Atomicidade** ficou na função SQL `reserve_gift_unit`: ela faz
+ `SELECT ... FOR UPDATE` na linha do presente, conta o estoque e insere o
+ `payment` na mesma transação. É o que impede dois cliques simultâneos
+ furarem um estoque limitado. Ela devolve `outcome` como *valor*
+ (`ok | not_found | inactive | sold_out`) em vez de lançar exceção, para o
+ app não depender de parsing de mensagem de erro do Postgres.
+- Janela de reserva: **20 minutos** (inalterada). Com estoque ilimitado ela
+ é irrelevante — a função nem conta.
+- **Um Pix aprovado depois dos 20 min** pode fazer um item limitado passar
+ do `stock_total` por uma unidade. Aceito de propósito: o dinheiro entrou,
+ recusar seria pior. O painel mostra o número real de vendidos.
+- **Compra de 1 unidade por vez.** Quem quiser dar 3× o mesmo presente
+ compra 3 vezes. Um seletor de quantidade não foi pedido e dobraria a
+ superfície (preço × quantidade no MP, estoque parcial, rollback parcial).
 
 ## Testabilidade
 
 - A lógica crítica foi extraída para módulos puros e injetáveis:
  - `webhook-core.ts` (`WebhookStore`) — idempotência e máquina de estados.
- - `reserve-core.ts` (`ReserveStore`) — reserva condicional e corrida (409).
+ - `reserve-core.ts` (`ReserveStore`) — reserva de unidade e tradução dos
+ resultados da RPC em 404/409.
+ - `stock.ts` — cálculo de estoque (função pura, sem IO).
  - `verifyWebhookSignature` em `mercadopago.ts` — validação de assinatura.
  As API Routes apenas instanciam os stores sobre o Supabase. Isso permite
  testar sem rede/DB reais (ver `tests/`).

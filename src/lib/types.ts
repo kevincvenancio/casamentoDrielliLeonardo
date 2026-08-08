@@ -1,3 +1,4 @@
+/** LEGADO: gifts.status nao decide mais disponibilidade (ver stock.ts). */
 export type GiftStatus = "available" | "reserved" | "paid";
 
 export type PaymentStatus = "pending" | "approved" | "rejected" | "refunded";
@@ -8,7 +9,13 @@ export interface Gift {
   description: string | null;
   image_url: string | null;
   price_cents: number;
+  /** Quantas vezes pode ser comprado. null = ilimitado. */
+  stock_total: number | null;
+  /** false esconde o presente da lista (sem apagar o historico). */
+  active: boolean;
+  /** @deprecated coluna legada; mantida so por compatibilidade. */
   status: GiftStatus;
+  /** @deprecated a reserva agora vive em payments.reserved_until. */
   reserved_until: string | null;
   sort_order: number;
   created_at: string;
@@ -36,6 +43,8 @@ export interface Payment {
   buyer_email: string | null;
   amount_cents: number | null;
   status: PaymentStatus;
+  /** Ate quando este checkout pendente segura uma unidade. */
+  reserved_until: string | null;
   raw_payload: unknown;
   created_at: string;
   updated_at: string;

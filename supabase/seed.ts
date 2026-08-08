@@ -32,7 +32,18 @@ const img = (file: string) => `/images/presentes/${file}`;
 // mesma lista cria presentes duplicados no banco. O fluxo e: substituir a lista
 // abaixo pelo novo lote, rodar uma vez, e commitar.
 // Lotes ja inseridos: sort_order 1-12 (tradicionais) e 13-21 (engracados).
-const gifts = [
+//
+// ESTOQUE: `stock_total` omitido = NULL = ilimitado (o presente nunca sai da
+// lista, pode ser comprado quantas vezes quiserem). Para limitar, informe um
+// numero -- ex.: `stock_total: 10`. Ver supabase/estoque.sql.
+const gifts: Array<{
+    title: string;
+    description: string;
+    image_url: string;
+    price_cents: number;
+    sort_order: number;
+    stock_total?: number | null;
+}> = [
     {
         title: "Pilhas para o controle remoto",
         description:
@@ -102,7 +113,11 @@ const gifts = [
 async function main() {
     console.log(`Inserindo ${gifts.length} presentes...`);
     const { error } = await supabase.from("gifts").insert(
-        gifts.map((g) => ({ ...g, status: "available" }))
+        gifts.map((g) => ({
+            ...g,
+            stock_total: g.stock_total ?? null, // null = ilimitado
+            active: true,
+        }))
     );
     if (error) {
         console.error("Erro ao inserir presentes:", error.message);

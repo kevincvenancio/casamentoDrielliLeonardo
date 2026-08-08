@@ -5,14 +5,14 @@ import {
   type WebhookStore,
 } from "@/lib/webhook-core";
 import { verifyWebhookSignature } from "@/lib/mercadopago";
-import type { Gift, Payment } from "@/lib/types";
+import type { Payment } from "@/lib/types";
 import type { MpPaymentInfo } from "@/lib/mercadopago";
+import { computeGiftStock } from "@/lib/stock";
 
 /** Store em memoria que imita o comportamento do Supabase. */
-function makeStore(seed: { gifts: Gift[]; payments: Payment[] }) {
-  const gifts = new Map(seed.gifts.map((g) => [g.id, { ...g }]));
+function makeStore(seed: { payments: Payment[] }) {
   const payments = new Map(seed.payments.map((p) => [p.id, { ...p }]));
-  const calls = { updatePayment: 0, setGiftStatus: 0 };
+  const calls = { updatePayment: 0 };
 
   const store: WebhookStore = {
     async findByMpPaymentId(mpPaymentId) {
@@ -35,31 +35,21 @@ function makeStore(seed: { gifts: Gift[]; payments: Payment[] }) {
       if (patch.buyerEmail != null) p.buyer_email = patch.buyerEmail;
       p.raw_payload = patch.raw;
     },
-    async setGiftStatus(giftId, status, opts) {
-      calls.setGiftStatus++;
-      const g = gifts.get(giftId);
-      if (!g) throw new Error("gift nao existe");
-      g.status = status;
-      if (opts?.clearReserved) g.reserved_until = null;
-    },
   };
 
-  return { store, gifts, payments, calls };
+  return { store, payments, calls };
 }
 
-function gift(over: Partial<Gift> = {}): Gift {
-  return {
-    id: "gift-1",
-    title: "Item",
-    description: null,
-    image_url: null,
-    price_cents: 10000,
-    status: "reserved",
-    reserved_until: new Date(Date.now() + 600000).toISOString(),
-    sort_order: 1,
-    created_at: new Date().toISOString(),
-    ...over,
-  };
+/** Recalcula o estoque a partir dos payments, como o site faz. */
+function estoque(
+  payments: Map<string, Payment>,
+  stockTotal: number | null,
+  giftId = "gift-1"
+) {
+  const rows = [...payments.values()]
+    .filter((p) => p.gift_id === giftId)
+    .map((p) => ({ status: p.status, reserved_until: p.reserved_until }));
+  return computeGiftStock({ stock_total: stockTotal }, rows);
 }
 
 function payment(over: Partial<Payment> = {}): Payment {
@@ -72,6 +62,7 @@ function payment(over: Partial<Payment> = {}): Payment {
     buyer_email: "fulano@example.com",
     amount_cents: 10000,
     status: "pending",
+    reserved_until: new Date(Date.now() + 600_000).toISOString(),
     raw_payload: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -93,11 +84,8 @@ function mpInfo(over: Partial<MpPaymentInfo> = {}): MpPaymentInfo {
 
 describe("webhook - idempotencia", () => {
   it("notificacao duplicada do mesmo mp_payment_id nao gera efeito duplo", async () => {
-    const { store, gifts, calls } = makeStore({
-      gifts: [gift({ status: "paid" })],
-      payments: [
-        payment({ status: "approved", mp_payment_id: "mp-123" }),
-      ],
+    const { store, payments, calls } = makeStore({
+      payments: [payment({ status: "approved", mp_payment_id: "mp-123" })],
     });
 
     const outcome = await processPaymentNotification({
@@ -108,17 +96,14 @@ describe("webhook - idempotencia", () => {
     expect(outcome).toBe("duplicate");
     // Nenhuma escrita adicional deve ocorrer.
     expect(calls.updatePayment).toBe(0);
-    expect(calls.setGiftStatus).toBe(0);
-    expect(gifts.get("gift-1")!.status).toBe("paid");
+    // E o estoque nao e consumido duas vezes.
+    expect(estoque(payments, 10).paidCount).toBe(1);
   });
 });
 
 describe("webhook - maquina de estados", () => {
-  it("pagamento aprovado marca gift como paid", async () => {
-    const { store, gifts, payments } = makeStore({
-      gifts: [gift({ status: "reserved" })],
-      payments: [payment()],
-    });
+  it("pagamento aprovado consome uma unidade do estoque", async () => {
+    const { store, payments } = makeStore({ payments: [payment()] });
 
     const outcome = await processPaymentNotification({
       info: mpInfo({ status: "approved" }),
@@ -126,16 +111,16 @@ describe("webhook - maquina de estados", () => {
     });
 
     expect(outcome).toBe("approved");
-    expect(gifts.get("gift-1")!.status).toBe("paid");
     expect(payments.get("pay-1")!.status).toBe("approved");
     expect(payments.get("pay-1")!.mp_payment_id).toBe("mp-123");
+
+    const stock = estoque(payments, 10);
+    expect(stock.paidCount).toBe(1);
+    expect(stock.remaining).toBe(9);
   });
 
-  it("pagamento rejeitado devolve o presente para 'available'", async () => {
-    const { store, gifts, payments } = makeStore({
-      gifts: [gift({ status: "reserved" })],
-      payments: [payment()],
-    });
+  it("pagamento rejeitado devolve a unidade ao estoque", async () => {
+    const { store, payments } = makeStore({ payments: [payment()] });
 
     const outcome = await processPaymentNotification({
       info: mpInfo({ status: "rejected" }),
@@ -143,16 +128,24 @@ describe("webhook - maquina de estados", () => {
     });
 
     expect(outcome).toBe("rejected");
-    expect(gifts.get("gift-1")!.status).toBe("available");
-    expect(gifts.get("gift-1")!.reserved_until).toBeNull();
     expect(payments.get("pay-1")!.status).toBe("rejected");
+    expect(estoque(payments, 10).remaining).toBe(10);
   });
 
-  it("pagamento pendente registra mas nao altera o gift", async () => {
-    const { store, gifts, calls } = makeStore({
-      gifts: [gift({ status: "reserved" })],
-      payments: [payment()],
+  it("estorno devolve a unidade ao estoque", async () => {
+    const { store, payments } = makeStore({ payments: [payment()] });
+
+    const outcome = await processPaymentNotification({
+      info: mpInfo({ status: "refunded" }),
+      store,
     });
+
+    expect(outcome).toBe("refunded");
+    expect(estoque(payments, 10).remaining).toBe(10);
+  });
+
+  it("pagamento pendente mantem apenas a reserva", async () => {
+    const { store, payments } = makeStore({ payments: [payment()] });
 
     const outcome = await processPaymentNotification({
       info: mpInfo({ status: "in_process" }),
@@ -160,8 +153,34 @@ describe("webhook - maquina de estados", () => {
     });
 
     expect(outcome).toBe("pending");
-    expect(gifts.get("gift-1")!.status).toBe("reserved");
-    expect(calls.setGiftStatus).toBe(0);
+    const stock = estoque(payments, 10);
+    expect(stock.paidCount).toBe(0);
+    expect(stock.reservedCount).toBe(1);
+  });
+
+  it("duas compras do MESMO presente sao aprovadas de forma independente", async () => {
+    const { store, payments } = makeStore({
+      payments: [
+        payment({ id: "pay-1" }),
+        payment({ id: "pay-2", buyer_name: "Ciclana" }),
+      ],
+    });
+
+    await processPaymentNotification({
+      info: mpInfo({ id: "mp-1", external_reference: "pay-1" }),
+      store,
+    });
+    await processPaymentNotification({
+      info: mpInfo({ id: "mp-2", external_reference: "pay-2" }),
+      store,
+    });
+
+    expect(payments.get("pay-1")!.status).toBe("approved");
+    expect(payments.get("pay-2")!.status).toBe("approved");
+
+    // Presente ilimitado continua na lista mesmo depois das duas compras.
+    expect(estoque(payments, null).soldOut).toBe(false);
+    expect(estoque(payments, 10).paidCount).toBe(2);
   });
 });
 

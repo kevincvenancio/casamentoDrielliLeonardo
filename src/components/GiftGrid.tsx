@@ -1,13 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import type { Gift } from "@/lib/types";
+import type { GiftWithStock } from "@/lib/stock";
 import { formatBRL } from "@/lib/format";
 
-function statusLabel(status: Gift["status"]) {
-    if (status === "paid") return "Presenteado";
-    if (status === "reserved") return "Reservado";
-    return "Disponível";
+/**
+ * Aviso de estoque abaixo do preço.
+ *
+ * Estoque ilimitado (`remaining === null`) não mostra nada: o presente
+ * simplesmente continua na lista para sempre. Quando há limite, só
+ * avisamos na reta final, para não transformar a lista num inventário.
+ */
+function StockNote({ gift }: { gift: GiftWithStock }) {
+    if (gift.remaining === null) return null;
+
+    if (gift.soldOut) {
+        return (
+            <p className="mt-1 text-sm text-stone">
+                {gift.soldOutReason === "reserved"
+                    ? "Alguém está finalizando o pagamento agora. Volte em alguns minutos."
+                    : "Todas as unidades já foram presenteadas."}
+            </p>
+        );
+    }
+
+    if (gift.remaining <= 3) {
+        return (
+            <p className="mt-1 text-sm text-amber-700">
+                {gift.remaining === 1
+                    ? "Última unidade!"
+                    : `Restam ${gift.remaining} unidades`}
+            </p>
+        );
+    }
+
+    return null;
 }
 
 /**
@@ -20,7 +47,7 @@ function statusLabel(status: Gift["status"]) {
  *   dispara no DOM antes do handler existir e seria perdido; aqui checamos
  *   `complete && naturalWidth === 0` assim que o elemento monta.
  */
-function GiftImage({ gift }: { gift: Gift }) {
+function GiftImage({ gift }: { gift: GiftWithStock }) {
     const [broken, setBroken] = useState(false);
 
     if (!gift.image_url || broken) {
@@ -46,8 +73,8 @@ function GiftImage({ gift }: { gift: Gift }) {
     );
 }
 
-export function GiftGrid({ gifts }: { gifts: Gift[] }) {
-    const [selected, setSelected] = useState<Gift | null>(null);
+export function GiftGrid({ gifts }: { gifts: GiftWithStock[] }) {
+    const [selected, setSelected] = useState<GiftWithStock | null>(null);
 
     if (gifts.length === 0) {
         return (
@@ -61,7 +88,9 @@ export function GiftGrid({ gifts }: { gifts: Gift[] }) {
         <>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {gifts.map((gift) => {
-                    const available = gift.status === "available";
+                    // Presente comprado NAO sai da lista: so fica indisponivel
+                    // se tiver limite de estoque e ele tiver acabado.
+                    const available = !gift.soldOut;
                     return (
                         <div
                             key={gift.id}
@@ -80,6 +109,7 @@ export function GiftGrid({ gifts }: { gifts: Gift[] }) {
                                 <p className="mt-3 text-lg font-medium">
                                     {formatBRL(gift.price_cents)}
                                 </p>
+                                <StockNote gift={gift} />
                                 <div className="mt-4">
                                     {available ? (
                                         <button
@@ -90,7 +120,9 @@ export function GiftGrid({ gifts }: { gifts: Gift[] }) {
                                         </button>
                                     ) : (
                                         <span className="inline-flex w-full items-center justify-center rounded-full bg-sand px-6 py-3 text-sm text-stone">
-                                            {statusLabel(gift.status)}
+                                            {gift.soldOutReason === "reserved"
+                                                ? "Reservado"
+                                                : "Esgotado"}
                                         </span>
                                     )}
                                 </div>
@@ -111,7 +143,7 @@ function CheckoutModal({
     gift,
     onClose,
 }: {
-    gift: Gift;
+    gift: GiftWithStock;
     onClose: () => void;
 }) {
     const [name, setName] = useState("");

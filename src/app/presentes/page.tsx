@@ -1,13 +1,13 @@
 import { listGifts } from "@/lib/gifts";
 import { GiftGrid } from "@/components/GiftGrid";
 import { PixSection } from "@/components/PixSection";
-import type { Gift } from "@/lib/types";
+import type { GiftWithStock } from "@/lib/stock";
 
 export const metadata = { title: "Lista de Presentes" };
 export const dynamic = "force-dynamic";
 
 export default async function GiftsPage() {
-  let gifts: Gift[] = [];
+  let gifts: GiftWithStock[] = [];
   let loadError: string | null = null;
   try {
     gifts = await listGifts();

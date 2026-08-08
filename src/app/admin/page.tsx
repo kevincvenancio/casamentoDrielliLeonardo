@@ -2,6 +2,7 @@ import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { createServiceClient } from "@/lib/supabase";
 import { AdminLogin } from "@/components/AdminLogin";
 import { formatBRL } from "@/lib/format";
+import { listGifts } from "@/lib/gifts";
 import type { Guest, Payment } from "@/lib/types";
 
 export const metadata = { title: "Admin" };
@@ -14,17 +15,26 @@ export default async function AdminPage() {
 
   const supabase = createServiceClient();
 
-  const [{ data: guestsData }, { data: paymentsData }] = await Promise.all([
-    supabase.from("guests").select("*").order("created_at", { ascending: false }),
-    supabase
-      .from("payments")
-      .select("*")
-      .eq("status", "approved")
-      .order("updated_at", { ascending: false }),
-  ]);
+  const [{ data: guestsData }, { data: paymentsData }, gifts] =
+    await Promise.all([
+      supabase
+        .from("guests")
+        .select("*")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("payments")
+        .select("*")
+        .eq("status", "approved")
+        .order("updated_at", { ascending: false }),
+      listGifts({ includeInactive: true }),
+    ]);
 
   const guests = (guestsData ?? []) as Guest[];
   const payments = (paymentsData ?? []) as Payment[];
+
+  // Com estoque, o mesmo presente aparece varias vezes na lista de
+  // pagamentos -- o titulo deixou de ser adivinhavel pelo valor.
+  const giftTitleById = new Map(gifts.map((g) => [g.id, g.title]));
 
   const attending = guests.filter((g) => g.attending);
   const totalPeople = attending.reduce(
@@ -92,6 +102,66 @@ export default async function AdminPage() {
         </div>
       </section>
 
+      {/* Presentes e estoque */}
+      <section className="mb-12">
+        <h2 className="mb-1 font-serif text-2xl">
+          Presentes ({gifts.length})
+        </h2>
+        <p className="mb-4 text-sm text-stone">
+          Estoque <strong>ilimitado</strong> significa que o presente nunca sai
+          da lista. Para limitar, rode no SQL Editor do Supabase:{" "}
+          <code className="rounded bg-sand px-1">
+            update gifts set stock_total = 10 where title = &apos;...&apos;;
+          </code>
+        </p>
+        <div className="overflow-x-auto rounded-xl border border-sand bg-white">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-sand/50 text-stone">
+              <tr>
+                <th className="p-3">Presente</th>
+                <th className="p-3">Valor</th>
+                <th className="p-3">Vendidos</th>
+                <th className="p-3">Em pagamento</th>
+                <th className="p-3">Estoque</th>
+                <th className="p-3">Arrecadado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {gifts.map((g) => (
+                <tr key={g.id} className="border-t border-sand">
+                  <td className="p-3 font-medium">
+                    {g.title}
+                    {!g.active && (
+                      <span className="ml-2 text-xs italic text-stone">
+                        (desativado)
+                      </span>
+                    )}
+                  </td>
+                  <td className="p-3 text-stone">{formatBRL(g.price_cents)}</td>
+                  <td className="p-3">{g.paidCount}</td>
+                  <td className="p-3 text-stone">{g.reservedCount}</td>
+                  <td className="p-3 text-stone">
+                    {g.remaining === null
+                      ? "ilimitado"
+                      : `${g.remaining} de ${g.stock_total}`}
+                  </td>
+                  <td className="p-3">
+                    {formatBRL(g.paidCount * g.price_cents)}
+                  </td>
+                </tr>
+              ))}
+              {gifts.length === 0 && (
+                <tr>
+                  <td className="p-3 text-stone" colSpan={6}>
+                    Nenhum presente cadastrado.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* Pagamentos aprovados */}
       <section>
         <h2 className="mb-4 font-serif text-2xl">
@@ -102,6 +172,7 @@ export default async function AdminPage() {
             <thead className="bg-sand/50 text-stone">
               <tr>
                 <th className="p-3">Comprador</th>
+                <th className="p-3">Presente</th>
                 <th className="p-3">E-mail</th>
                 <th className="p-3">Valor</th>
                 <th className="p-3">MP Payment ID</th>
@@ -112,6 +183,9 @@ export default async function AdminPage() {
               {payments.map((p) => (
                 <tr key={p.id} className="border-t border-sand">
                   <td className="p-3 font-medium">{p.buyer_name || "-"}</td>
+                  <td className="p-3 text-stone">
+                    {(p.gift_id && giftTitleById.get(p.gift_id)) || "-"}
+                  </td>
                   <td className="p-3 text-stone">{p.buyer_email || "-"}</td>
                   <td className="p-3">{formatBRL(p.amount_cents ?? 0)}</td>
                   <td className="p-3 text-stone">{p.mp_payment_id || "-"}</td>
@@ -122,7 +196,7 @@ export default async function AdminPage() {
               ))}
               {payments.length === 0 && (
                 <tr>
-                  <td className="p-3 text-stone" colSpan={5}>
+                  <td className="p-3 text-stone" colSpan={6}>
                     Nenhum pagamento aprovado ainda.
                   </td>
                 </tr>
