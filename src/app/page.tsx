@@ -14,15 +14,16 @@ export default function HomePage() {
             <section className="bg-cream">
                 <div className="container-page grid items-center gap-10 py-12 lg:grid-cols-2 lg:gap-14 lg:py-20">
                     {/* Foto: em cima no mobile, coluna da direita no desktop.
-                        aspect-[3/4] e a proporcao real de cover.jpg (960x1280),
-                        entao o bg-cover preenche sem cortar nada. Se trocarem a
-                        foto por uma de outra proporcao, ajuste este valor.
+                        aspect-[2/3] e a proporcao real de cover.jpg (1200x1800,
+                        uma foto do ensaio), entao o bg-cover preenche sem cortar
+                        nada. Se trocarem a foto por uma de outra proporcao,
+                        ajuste este valor.
                         Sem o arquivo, sobra o bg-sand: um bloco neutro, em vez
                         de icone de imagem quebrada. */}
                     <div
                         role="img"
                         aria-label={`${wedding.couple.bride} e ${wedding.couple.groom}`}
-                        className="order-first aspect-[3/4] w-full overflow-hidden rounded-2xl border border-sand bg-sand bg-cover bg-center lg:order-last"
+                        className="order-first aspect-[2/3] w-full overflow-hidden rounded-2xl border border-sand bg-sand bg-cover bg-center lg:order-last"
                         style={{ backgroundImage: `url('${wedding.coverImage}')` }}
                     />
 

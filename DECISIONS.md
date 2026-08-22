@@ -69,6 +69,38 @@ opção mais simples que funcione corretamente.
  compra 3 vezes. Um seletor de quantidade não foi pedido e dobraria a
  superfície (preço × quantidade no MP, estoque parcial, rollback parcial).
 
+## Galeria do ensaio
+
+- **Só as fotos deitadas.** O ensaio veio com 11 em paisagem e 9 em retrato.
+ Misturar as duas orientações deixava a moldura ora cheia, ora com a foto
+ pequena entre duas faixas — o casal preferiu manter só as horizontais, e a
+ galeria ganhou uma cadência só. As verticais continuam em
+ `fotos-originais/ensaio-verticais/`, fora do Git; uma delas virou a capa da
+ home, que é justamente um espaço em retrato.
+- **Carrossel com dissolvência, não com deslize lateral.** A moldura fica
+ parada e as fotos se sucedem dentro dela. Ela é 3/2, a proporção das fotos,
+ então cada uma preenche o espaço exato — no celular e no desktop.
+- **O fundo borrado ficou como rede de segurança.** Hoje nenhuma foto sobra
+ na moldura, mas uma futura foto de outra proporção aparece inteira
+ (`object-contain`) sobre uma versão ampliada e borrada dela mesma, em vez de
+ ganhar duas faixas vazias. É o mesmo arquivo da frente, sem download extra.
+- **Só três fotos ficam no DOM** (anterior, atual e próxima). Empilhar todas
+ com `opacity: 0` as baixaria: elemento transparente continua visível para o
+ *lazy loading* do navegador. As vizinhas só entram depois da montagem, então
+ a primeira pintura da página carrega uma foto só e a troca ainda é
+ instantânea.
+- **Fotos otimizadas na entrada, não em tempo de execução.** `next/image`
+ redimensionaria sob demanda, mas o projeto serve `<img>` simples em todas as
+ páginas e os 64 MB de originais ainda iriam para o repositório e para o
+ deploy. As versões web (1800px, ~180 KB) são geradas por
+ `scripts/otimizar-fotos.ps1` e os originais ficam fora do Git.
+- **Sem autoplay e sem lightbox.** O pedido era passar as fotos nas setas.
+ Autoplay competiria com a leitura da linha do tempo e exigiria pausa,
+ respeito a `prefers-reduced-motion` e controle de foco.
+- Teclado (← →) funciona com o foco em qualquer botão do carrossel, e arrastar
+ o dedo passa a foto. Um aviso `aria-live` conta qual foto entrou, porque a
+ dissolvência não move o foco e o leitor de tela não perceberia a troca.
+
 ## Testabilidade
 
 - A lógica crítica foi extraída para módulos puros e injetáveis:

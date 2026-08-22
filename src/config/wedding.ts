@@ -21,7 +21,10 @@ export const wedding = {
   // Frase curta do hero
   tagline: "Vão dizer sim!",
 
-  // Imagem de capa (coloque a foto em /public/images/cover.jpg)
+  // Imagem de capa (coloque a foto em /public/images/cover.jpg).
+  // E uma foto do ensaio, em retrato 2:3 -- a home usa essa proporcao na
+  // moldura do hero. Trocando por uma foto de outra proporcao, ajuste o
+  // `aspect-[2/3]` em src/app/page.tsx.
   coverImage: "/images/cover.jpg",
 
   // Monograma do casal, exibido no topo do site.
@@ -44,6 +47,64 @@ export const wedding = {
       { date: "7 de dezembro de 2025", title: "O pedido de noivado" },
       { date: "6 de dezembro de 2026", title: "O grande dia" },
     ] as { date: string; title: string; text?: string }[],
+
+    // Galeria do ensaio, exibida no fim da pagina em um carrossel.
+    // So fotos DEITADAS (paisagem): a galeria fica mais harmonica com
+    // todas na mesma proporcao, sem a moldura mudando de foto para foto.
+    // Para trocar: salve os arquivos em /public/images/ensaio/ e liste-os
+    // aqui na ordem em que devem aparecer. Otimize antes de subir (lado
+    // maior ~1800px, JPEG) -- o arquivo vai para o visitante do jeito que
+    // estiver na pasta. O `alt` descreve a foto para leitores de tela.
+    gallery: {
+      title: "Nosso Ensaio",
+      intro: "Um pouquinho do nosso ensaio, à beira-mar.",
+      photos: [
+        {
+          src: "/images/ensaio/ensaio-01.jpg",
+          alt: "Drielli e Leonardo frente a frente na areia, prestes a se beijar",
+        },
+        {
+          src: "/images/ensaio/ensaio-02.jpg",
+          alt: "Drielli sorrindo para Leonardo, vista por cima do ombro dele",
+        },
+        {
+          src: "/images/ensaio/ensaio-03.jpg",
+          alt: "Leonardo abraça Drielli por trás enquanto ela ri",
+        },
+        {
+          src: "/images/ensaio/ensaio-04.jpg",
+          alt: "Detalhe das alianças de noivado e do colar com o pingente de fé",
+        },
+        {
+          src: "/images/ensaio/ensaio-05.jpg",
+          alt: "Drielli nas costas de Leonardo, os dois correndo e rindo na praia",
+        },
+        {
+          src: "/images/ensaio/ensaio-06.jpg",
+          alt: "Brincadeira na beira do mar, entre risadas",
+        },
+        {
+          src: "/images/ensaio/ensaio-07.jpg",
+          alt: "O casal sentado na areia molhada, abraçado, olhando para a câmera",
+        },
+        {
+          src: "/images/ensaio/ensaio-08.jpg",
+          alt: "De costas, de mãos dadas, caminhando em direção ao mar",
+        },
+        {
+          src: "/images/ensaio/ensaio-09.jpg",
+          alt: "Dentro do mar, Leonardo ergue Drielli no colo em um beijo",
+        },
+        {
+          src: "/images/ensaio/ensaio-10.jpg",
+          alt: "Os dois de pé dentro da água, se beijando entre as ondas",
+        },
+        {
+          src: "/images/ensaio/ensaio-11.jpg",
+          alt: "Abraçados na praia com o sol se pondo atrás deles",
+        },
+      ],
+    },
   },
 
   // Cerimônia e festa acontecem no MESMO endereço.

@@ -29,6 +29,8 @@ src/
  reserve-core.ts <- reserva de UMA unidade do presente (testavel)
  stock.ts <- calculo de estoque, funcao pura (testavel)
  gifts.ts <- leitura da lista ja com o estoque calculado
+ components/
+ PhotoGallery.tsx <- carrossel das fotos do ensaio
  app/
  api/checkout <- POST /api/checkout
  api/webhook/mercadopago<- POST webhook do MP
@@ -42,6 +44,9 @@ supabase/
  estoque.sql <- receitas prontas p/ gerenciar estoque
  seed.ts <- ~12 presentes de exemplo
 tests/ <- testes de estoque, reserva e webhook (vitest)
+scripts/
+ otimizar-fotos.ps1 <- prepara as fotos do ensaio para a web
+public/images/ensaio/ <- fotos da galeria, ja otimizadas
 ```
 
 ## Estoque dos presentes
@@ -74,6 +79,42 @@ update public.gifts set stock_total = 10
 `supabase/estoque.sql` tem as receitas prontas (ver situação atual, limitar
 um item ou todos, voltar para ilimitado, esconder um presente). O painel
 `/admin` mostra vendidos, em pagamento e restante por presente.
+
+## Fotos da galeria e capa
+
+A página **Nossa História** termina com um carrossel das fotos do ensaio
+(`public/images/ensaio/`), na ordem listada em `story.gallery.photos` de
+`src/config/wedding.ts`. A galeria leva **só fotos deitadas** (paisagem): com
+todas na mesma proporção a moldura não muda de foto para foto. A capa da home
+(`public/images/cover.jpg`) é uma foto em pé do mesmo ensaio.
+
+Tudo que está em `public/` é servido como arquivo estático: o convidado baixa
+a foto do jeito que ela estiver na pasta. Um JPEG de 3.500px direto do
+fotógrafo tem uns 3 MB — no celular, em rede móvel, isso demora uma
+eternidade. Por isso as fotos entram já redimensionadas (lado maior 1800px,
+~180 KB cada).
+
+Para trocar as fotos da galeria:
+
+1. Guarde os arquivos originais em `fotos-originais/ensaio/` — só as
+   horizontais; as que sobrarem podem ficar em
+   `fotos-originais/ensaio-verticais/`. Essas pastas ficam **fora do Git**:
+   são o backup local, não vão para o site.
+2. Apague o conteúdo de `public/images/ensaio/` e gere as versões web:
+
+   ```powershell
+   powershell -File scripts/otimizar-fotos.ps1 -Origem fotos-originais/ensaio -Destino public/images/ensaio -Prefixo ensaio
+   ```
+
+   O script ordena pelo número no fim do nome do arquivo (a numeração do
+   fotógrafo costuma seguir a ordem do ensaio) e grava `ensaio-01.jpg`,
+   `ensaio-02.jpg`, ...
+3. Atualize a lista `story.gallery.photos` em `src/config/wedding.ts`, com um
+   `alt` descrevendo cada foto — é o que o leitor de tela vai narrar.
+
+Para trocar a capa: rode o script apontando para uma pasta com **uma** foto
+em pé, renomeie a saída para `public/images/cover.jpg` e, se a proporção for
+diferente de 2:3, ajuste o `aspect-[2/3]` da moldura em `src/app/page.tsx`.
 
 ## 1. Configuração local
 

@@ -10,3 +10,6 @@ build
 next-env.d.ts
 coverage
 dev.log
+
+# Fotos originais do ensaio (backup local, pesado demais para o site)
+fotos-originais
