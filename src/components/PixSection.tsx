@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { wedding } from "@/config/wedding";
+import { Reveal } from "@/components/motion/Reveal";
 
 /**
  * Bloco de Pix direto no fim da lista de presentes. O QR fica escondido atras
@@ -39,45 +41,67 @@ export function PixSection() {
     }
 
     return (
-        <section className="mx-auto mt-16 max-w-2xl rounded-2xl border border-sand bg-white p-8 text-center">
-            <h2 className="font-serif text-2xl text-ink">{pix.title}</h2>
-            <p className="mx-auto mt-3 max-w-md text-stone">{pix.text}</p>
+        <Reveal
+            as="section"
+            variant="scale"
+            className="relative mx-auto mt-20 max-w-3xl overflow-hidden rounded-[1.25rem] border border-cream/12 bg-night p-9 text-center sm:mt-28 sm:p-14"
+        >
+            {/* Clarão dourado subindo do rodapé do bloco. */}
+            <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-48 opacity-50"
+                style={{
+                    background:
+                        "radial-gradient(60% 100% at 50% 100%, rgba(196,160,99,0.45), transparent 70%)",
+                }}
+            />
 
-            {!open ? (
-                <button
-                    type="button"
-                    className="btn-primary mt-6"
-                    onClick={() => setOpen(true)}
-                    aria-expanded={false}
-                    aria-controls="pix-detalhes"
-                >
-                    Fazer um Pix
-                </button>
-            ) : (
-                <div id="pix-detalhes" className="mt-8">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                        src={pix.qrImage}
-                        alt={`QR Code do Pix para ${pix.recipient}`}
-                        className="mx-auto h-56 w-56 rounded-xl border border-sand bg-white object-contain p-2"
-                    />
-                    <p className="mt-3 text-sm text-stone">{pix.recipient}</p>
+            <div className="relative">
+                <p className="eyebrow-light">Pix direto</p>
+                <h2 className="display-md mt-4 text-cream">{pix.title}</h2>
+                <p className="lede-light mx-auto mt-5 max-w-md">{pix.text}</p>
 
-                    <div className="mx-auto mt-6 max-w-md">
-                        <p className="field-label text-left">Pix copia e cola</p>
-                        <p className="select-all break-all rounded-lg border border-sand bg-cream px-3 py-2 text-left text-xs text-stone">
-                            {pix.key}
-                        </p>
-                        <button
-                            type="button"
-                            className="btn-outline mt-3 w-full"
-                            onClick={copyKey}
-                        >
-                            {copied ? "Chave copiada!" : "Copiar chave Pix"}
-                        </button>
+                {!open ? (
+                    <button
+                        type="button"
+                        className="btn-light mt-9"
+                        onClick={() => setOpen(true)}
+                        aria-expanded={false}
+                        aria-controls="pix-detalhes"
+                    >
+                        Fazer um Pix
+                    </button>
+                ) : (
+                    <div id="pix-detalhes" className="animate-fade-up mt-10">
+                        {/* O QR fica sobre branco puro e com folga em volta:
+                            é o que a câmera do banco precisa para ler. */}
+                        <div className="mx-auto w-fit rounded-2xl border border-cream/15 bg-white p-3">
+                            <Image
+                                src={pix.qrImage}
+                                alt={`QR Code do Pix para ${pix.recipient}`}
+                                width={354}
+                                height={351}
+                                className="h-52 w-52 object-contain"
+                            />
+                        </div>
+                        <p className="mt-4 text-sm text-cream/60">{pix.recipient}</p>
+
+                        <div className="mx-auto mt-8 max-w-md text-left">
+                            <p className="eyebrow-light mb-2">Pix copia e cola</p>
+                            <p className="select-all break-all rounded-xl border border-cream/12 bg-cream/[0.06] px-4 py-3 text-xs leading-relaxed text-cream/70">
+                                {pix.key}
+                            </p>
+                            <button
+                                type="button"
+                                className="btn-light mt-4 w-full"
+                                onClick={copyKey}
+                            >
+                                {copied ? "Chave copiada!" : "Copiar chave Pix"}
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
-        </section>
+                )}
+            </div>
+        </Reveal>
     );
 }

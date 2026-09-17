@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { GiftWithStock } from "@/lib/stock";
 import { formatBRL } from "@/lib/format";
+import { Reveal } from "@/components/motion/Reveal";
 
 /**
  * Aviso de estoque abaixo do preço.
@@ -52,7 +53,7 @@ function GiftImage({ gift }: { gift: GiftWithStock }) {
 
     if (!gift.image_url || broken) {
         return (
-            <span className="px-4 text-center font-serif text-lg text-stone">
+            <span className="px-4 text-center font-serif text-xl text-stone">
                 {gift.title}
             </span>
         );
@@ -66,7 +67,7 @@ function GiftImage({ gift }: { gift: GiftWithStock }) {
             }}
             src={gift.image_url}
             alt={gift.title}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition-transform duration-[1200ms] ease-silk group-hover:scale-[1.06]"
             loading="lazy"
             onError={() => setBroken(true)}
         />
@@ -86,31 +87,40 @@ export function GiftGrid({ gifts }: { gifts: GiftWithStock[] }) {
 
     return (
         <>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {gifts.map((gift) => {
+            <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+                {gifts.map((gift, i) => {
                     // Presente comprado NAO sai da lista: so fica indisponivel
                     // se tiver limite de estoque e ele tiver acabado.
                     const available = !gift.soldOut;
                     return (
-                        <div
+                        <Reveal
                             key={gift.id}
-                            className="flex flex-col overflow-hidden rounded-2xl border border-sand bg-white"
+                            // A cascata reinicia a cada fileira: quem rola vê
+                            // sempre uma onda curta, não um atraso crescente.
+                            delay={(i % 3) * 110}
+                            className="h-full"
                         >
-                            <div className="flex aspect-[4/3] w-full items-center justify-center bg-sand">
+                          {/* O cartão é FILHO do Reveal, e não ele mesmo: o
+                              estado final da revelação fixa `transform: none`,
+                              que apagaria o levantar do hover. */}
+                          <div className="group card card-hover flex h-full flex-col">
+                            <div className="flex aspect-[4/3] w-full items-center justify-center overflow-hidden bg-sand">
                                 <GiftImage gift={gift} />
                             </div>
-                            <div className="flex flex-1 flex-col p-5">
-                                <h3 className="font-serif text-xl">{gift.title}</h3>
+                            <div className="flex flex-1 flex-col p-6">
+                                <h3 className="font-serif text-2xl font-normal leading-tight text-ink">
+                                    {gift.title}
+                                </h3>
                                 {gift.description && (
-                                    <p className="mt-1 flex-1 text-sm text-stone">
+                                    <p className="mt-2 flex-1 text-sm leading-relaxed text-stone">
                                         {gift.description}
                                     </p>
                                 )}
-                                <p className="mt-3 text-lg font-medium">
+                                <p className="mt-4 font-serif text-2xl text-ink">
                                     {formatBRL(gift.price_cents)}
                                 </p>
                                 <StockNote gift={gift} />
-                                <div className="mt-4">
+                                <div className="mt-5">
                                     {available ? (
                                         <button
                                             className="btn-primary w-full"
@@ -119,7 +129,7 @@ export function GiftGrid({ gifts }: { gifts: GiftWithStock[] }) {
                                             Presentear
                                         </button>
                                     ) : (
-                                        <span className="inline-flex w-full items-center justify-center rounded-full bg-sand px-6 py-3 text-sm text-stone">
+                                        <span className="inline-flex w-full items-center justify-center rounded-full border border-sand bg-sand/60 px-6 py-3.5 text-[0.8rem] uppercase tracking-[0.18em] text-stone">
                                             {gift.soldOutReason === "reserved"
                                                 ? "Reservado"
                                                 : "Esgotado"}
@@ -127,7 +137,8 @@ export function GiftGrid({ gifts }: { gifts: GiftWithStock[] }) {
                                     )}
                                 </div>
                             </div>
-                        </div>
+                          </div>
+                        </Reveal>
                     );
                 })}
             </div>
@@ -150,6 +161,29 @@ function CheckoutModal({
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const nameRef = useRef<HTMLInputElement>(null);
+
+    // Abriu: o foco vai para o primeiro campo e o fundo para de rolar atrás
+    // do painel. Só na montagem -- nada aqui depende do estado do formulário.
+    useEffect(() => {
+        nameRef.current?.focus();
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = previousOverflow;
+        };
+    }, []);
+
+    // Esc fecha. Fica num efeito separado porque depende de `loading`: enquanto
+    // o checkout é criado, fechar perderia o pedido em andamento. Juntar os
+    // dois efeitos faria o foco voltar ao campo de nome a cada envio.
+    useEffect(() => {
+        function onKey(e: KeyboardEvent) {
+            if (e.key === "Escape" && !loading) onClose();
+        }
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [onClose, loading]);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -184,56 +218,73 @@ function CheckoutModal({
 
     return (
         <div
-            className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-ink/50 p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Presentear: ${gift.title}`}
+            className="fixed inset-0 z-[60] overflow-y-auto overscroll-contain bg-night/70 p-4 backdrop-blur-sm lite-drop-blur"
             onClick={onClose}
         >
             <div
                 className="mx-auto flex min-h-full w-full max-w-md items-center"
                 onClick={(e) => e.stopPropagation()}
             >
-            <div className="w-full rounded-2xl bg-white p-6">
-                <h3 className="font-serif text-2xl">Presentear</h3>
-                <p className="mt-1 text-stone">
-                    {gift.title} — {formatBRL(gift.price_cents)}
-                </p>
+                <div className="animate-fade-up w-full overflow-hidden rounded-[1.25rem] border border-sand bg-cream p-7 shadow-[0_50px_100px_-40px_rgba(0,0,0,0.7)]">
+                    <p className="eyebrow">Presentear</p>
+                    <h3 className="mt-3 font-serif text-3xl font-light leading-tight text-ink">
+                        {gift.title}
+                    </h3>
+                    <p className="mt-2 font-serif text-2xl text-gold">
+                        {formatBRL(gift.price_cents)}
+                    </p>
 
-                <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-                    <div>
-                        <label className="field-label">Seu nome *</label>
-                        <input
-                            className="field-input"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="field-label">Seu e-mail</label>
-                        <input
-                            type="email"
-                            className="field-input"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </div>
+                    <form onSubmit={handleSubmit} className="mt-7 space-y-5">
+                        <div>
+                            <label className="field-label" htmlFor="checkout-nome">
+                                Seu nome *
+                            </label>
+                            <input
+                                id="checkout-nome"
+                                ref={nameRef}
+                                className="field-input"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="field-label" htmlFor="checkout-email">
+                                Seu e-mail
+                            </label>
+                            <input
+                                id="checkout-email"
+                                type="email"
+                                className="field-input"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </div>
 
-                    {error && <p className="text-sm text-red-600">{error}</p>}
+                        {error && <p className="text-sm text-red-700">{error}</p>}
 
-                    <div className="flex gap-3">
-                        <button
-                            type="button"
-                            className="btn-outline flex-1"
-                            onClick={onClose}
-                            disabled={loading}
-                        >
-                            Cancelar
-                        </button>
-                        <button type="submit" className="btn-primary flex-1" disabled={loading}>
-                            {loading ? "Redirecionando..." : "Ir para pagamento"}
-                        </button>
-                    </div>
-                </form>
-            </div>
+                        <div className="flex flex-col gap-3 sm:flex-row">
+                            <button
+                                type="button"
+                                className="btn-outline flex-1"
+                                onClick={onClose}
+                                disabled={loading}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="submit"
+                                className="btn-primary flex-1"
+                                disabled={loading}
+                            >
+                                {loading ? "Redirecionando..." : "Ir para pagamento"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

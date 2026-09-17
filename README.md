@@ -29,8 +29,12 @@ src/
  reserve-core.ts <- reserva de UMA unidade do presente (testavel)
  stock.ts <- calculo de estoque, funcao pura (testavel)
  gifts.ts <- leitura da lista ja com o estoque calculado
+ lib/motion.ts <- motor de rolagem (um rAF para a pagina inteira)
  components/
  PhotoGallery.tsx <- carrossel das fotos do ensaio
+ PageHero.tsx <- topo em camadas das paginas internas
+ motion/ <- Scene, Layer, Reveal, SplitText, MotionGuard
+ home/ <- as sete cenas da home, na ordem da narrativa
  app/
  api/checkout <- POST /api/checkout
  api/webhook/mercadopago<- POST webhook do MP
@@ -48,6 +52,54 @@ scripts/
  otimizar-fotos.ps1 <- prepara as fotos do ensaio para a web
 public/images/ensaio/ <- fotos da galeria, ja otimizadas
 ```
+
+## Animacao e camadas
+
+O site e uma sequencia de cenas. Conforme a pessoa rola, os planos de cada
+cena se movem em velocidades diferentes -- e isso que da a sensacao de
+profundidade. Tudo isso e caseiro: **nao ha biblioteca de animacao**, o JS da
+home inteira sao 110 kB.
+
+Quatro pecas, todas em `src/components/motion/`:
+
+| Peca | Para que serve |
+| --- | --- |
+| `<Scene mode>` | Delimita um trecho e publica o progresso da rolagem (0 a 1) na variavel CSS `--p`, que os filhos herdam. `mode="pin"` e para as cenas presas na tela; `"through"` para o parallax comum. |
+| `<Layer depth>` | Uma camada dentro da cena. `depth` e o quanto ela anda ao longo do trecho, em pixels: negativo sobe, positivo desce. Fundo ~ -40, meio ~ 30, frente ~ 90. Aceita tambem `zoom` e `fade`. |
+| `<Reveal>` | Revela o bloco quando ele entra na tela. `delay` escalona uma lista. |
+| `<SplitText lines>` | Titulo que sobe palavra a palavra, cada uma saindo da propria mascara. |
+
+Regras que o codigo segue e vale manter:
+
+- **Um `requestAnimationFrame` para a pagina toda** (`src/lib/motion.ts`). Cada
+  quadro le o `rect` de todas as cenas visiveis e so depois escreve os
+  estilos -- intercalar leitura e escrita forcaria o navegador a recalcular o
+  layout a cada elemento.
+- **So `transform` e `opacity`.** Sao as duas propriedades que a GPU compoe
+  sozinha, sem repintar. Animar `width`, `top` ou `margin` derrubaria a taxa
+  de quadros.
+- **Nada de `filter: blur()` em area grande.** As manchas de cor sao
+  gradientes radiais, que ja nascem suaves; o fundo esfumado da linha do tempo
+  e uma miniatura de 48px esticada para a tela. Trocar os desfoques por essas
+  duas tecnicas levou a home de 36 para 59 quadros por segundo.
+- **`Reveal` nao pode envolver um elemento que se move no hover.** O estado
+  final da revelacao fixa `transform: none` e apagaria o efeito. Nesses casos
+  o cartao vai DENTRO do `<Reveal>`, como filho.
+- **A cortina do menu mobile vive fora do `<header>`.** O header usa
+  `backdrop-blur`, e `backdrop-filter` transforma o elemento em bloco de
+  contencao para descendentes `position: fixed`.
+
+Tres saidas de emergencia, todas ja ligadas:
+
+- `prefers-reduced-motion` -- tudo entra no estado final na hora, sem
+  movimento nenhum.
+- `data-lite="1"` -- aparelho com pouca memoria, poucos nucleos ou conexao
+  economica. Sai o `backdrop-filter` dos cartoes e do header. A marca vem do
+  script inline do `layout.tsx`; se ele nao detectar, `MotionGuard` mede a
+  taxa de quadros da primeira rolagem e liga o modo leve se estiver abaixo de
+  38 fps.
+- **Sem JavaScript** -- o `<html>` nao recebe `data-motion="on"` e o CSS
+  mantem tudo visivel e parado. O site inteiro continua legivel.
 
 ## Estoque dos presentes
 

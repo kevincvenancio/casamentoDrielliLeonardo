@@ -1,6 +1,8 @@
 import { listGifts } from "@/lib/gifts";
 import { GiftGrid } from "@/components/GiftGrid";
 import { PixSection } from "@/components/PixSection";
+import { PageHero } from "@/components/PageHero";
+import { Reveal } from "@/components/motion/Reveal";
 import type { GiftWithStock } from "@/lib/stock";
 
 export const metadata = { title: "Lista de Presentes" };
@@ -16,26 +18,33 @@ export default async function GiftsPage() {
   }
 
   return (
-    <div className="container-page py-16">
-      <header className="mb-12 text-center">
-        <h1 className="section-title">Lista de Presentes</h1>
-        <p className="mx-auto mt-4 max-w-2xl text-stone">
-          Sua presença já é o maior presente. Mas se quiser nos presentear, aqui
-          vão algumas sugestões. O pagamento é feito com segurança via Mercado
-          Pago (cartão, Pix ou boleto).
-        </p>
-      </header>
+    <>
+      <PageHero
+        eyebrow="Se quiser nos presentear"
+        title={["Lista de", "Presentes"]}
+        text="Sua presença já é o maior presente. Mas se quiser nos mimar, aqui vão algumas sugestões. O pagamento é feito com segurança via Mercado Pago (cartão, Pix ou boleto)."
+        photo="/images/ensaio/ensaio-10.jpg"
+        alt=""
+        objectPosition="50% 40%"
+      />
 
-      {loadError ? (
-        <p className="rounded-lg border border-sand bg-white p-6 text-center text-stone">
-          Não foi possível carregar a lista agora. Verifique a configuração do
-          Supabase. ({loadError})
-        </p>
-      ) : (
-        <GiftGrid gifts={gifts} />
-      )}
+      <section className="relative overflow-hidden bg-cream py-20 sm:py-28">
+        <div className="container-page relative">
+          {loadError ? (
+            <Reveal className="card mx-auto max-w-xl p-8 text-center">
+              <p className="text-stone">
+                Não foi possível carregar a lista agora. Verifique a
+                configuração do Supabase.
+              </p>
+              <p className="mt-2 text-xs text-stone/70">({loadError})</p>
+            </Reveal>
+          ) : (
+            <GiftGrid gifts={gifts} />
+          )}
 
-      <PixSection />
-    </div>
+          <PixSection />
+        </div>
+      </section>
+    </>
   );
 }

@@ -26,7 +26,7 @@ export function AdminLogin() {
   }
 
   return (
-    <div className="container-page py-24">
+    <div className="container-page pb-24 pt-36">
       <form
         onSubmit={handleSubmit}
         className="mx-auto max-w-sm space-y-4 rounded-2xl border border-sand bg-white p-8"

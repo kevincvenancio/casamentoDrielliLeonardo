@@ -69,9 +69,16 @@ export function RsvpForm({ maxCompanions }: { maxCompanions: number }) {
 
   if (done) {
     return (
-      <div className="rounded-2xl border border-sand bg-white p-8 text-center">
-        <h2 className="font-serif text-2xl">Obrigado!</h2>
-        <p className="mt-2 text-stone">
+      <div className="card p-10 text-center sm:p-12">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-gold/15 to-transparent"
+        />
+        <p className="eyebrow relative">Recebido</p>
+        <h2 className="relative mt-4 font-serif text-4xl font-light text-ink">
+          Obrigado!
+        </h2>
+        <p className="relative mx-auto mt-4 max-w-sm text-stone">
           {attending
             ? "Sua presença foi confirmada. Mal podemos esperar para celebrar com você!"
             : "Agradecemos o retorno. Sentiremos sua falta!"}
@@ -83,7 +90,7 @@ export function RsvpForm({ maxCompanions }: { maxCompanions: number }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-5 rounded-2xl border border-sand bg-white p-6"
+      className="card space-y-6 p-6 sm:p-8"
     >
       <div>
         <label className="field-label">Nome completo *</label>
@@ -165,7 +172,7 @@ export function RsvpForm({ maxCompanions }: { maxCompanions: number }) {
                     type="button"
                     onClick={() => removeCompanion(i)}
                     aria-label={`Remover ${i + 1}º acompanhante`}
-                    className="shrink-0 rounded-lg border border-sand px-3 py-2 text-sm text-stone transition hover:border-stone hover:text-ink"
+                    className="shrink-0 rounded-xl border border-sand px-3 py-2.5 text-xs uppercase tracking-[0.12em] text-stone transition-colors duration-300 hover:border-stone hover:text-ink"
                   >
                     Remover
                   </button>
@@ -201,7 +208,11 @@ export function RsvpForm({ maxCompanions }: { maxCompanions: number }) {
         />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </p>
+      )}
 
       <button type="submit" className="btn-primary w-full" disabled={loading}>
         {loading ? "Enviando..." : "Confirmar"}

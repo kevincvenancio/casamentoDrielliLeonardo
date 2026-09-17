@@ -62,7 +62,7 @@ export function PhotoGallery({ photos }: { photos: readonly Photo[] }) {
       role="group"
       aria-roledescription="carrossel"
       aria-label="Fotos do ensaio"
-      className="mx-auto max-w-4xl"
+      className="mx-auto max-w-5xl"
       onKeyDown={(event) => {
         // Setas do teclado funcionam com o foco em qualquer botao daqui.
         // O preventDefault evita a foto andar e a pagina rolar no mesmo toque.
@@ -77,7 +77,7 @@ export function PhotoGallery({ photos }: { photos: readonly Photo[] }) {
       }}
     >
       <div
-        className="relative aspect-[3/2] w-full overflow-hidden rounded-2xl border border-sand bg-sand"
+        className="relative aspect-[3/2] w-full overflow-hidden rounded-[1.25rem] border border-sand bg-night shadow-[0_45px_100px_-60px_rgba(25,20,16,0.8)]"
         onPointerDown={(event) => {
           dragStartX.current = event.clientX;
         }}
@@ -135,14 +135,14 @@ export function PhotoGallery({ photos }: { photos: readonly Photo[] }) {
       <div className="mt-5 flex items-center justify-center gap-4">
         <p
           aria-hidden="true"
-          className="text-xs uppercase tracking-widest tabular-nums text-stone"
+          className="text-[0.66rem] uppercase tracking-[0.26em] tabular-nums text-stone"
         >
           {String(index + 1).padStart(2, "0")} /{" "}
           {String(total).padStart(2, "0")}
         </p>
-        <div aria-hidden="true" className="h-px w-20 bg-sand">
+        <div aria-hidden="true" className="h-px w-24 bg-sand">
           <div
-            className="h-px bg-stone transition-[width] duration-500 ease-out"
+            className="h-px bg-gradient-to-r from-gold to-lilac transition-[width] duration-500 ease-out"
             style={{ width: `${((index + 1) / total) * 100}%` }}
           />
         </div>
@@ -170,7 +170,7 @@ function ArrowButton({
       type="button"
       onClick={onClick}
       aria-label={isPrev ? "Foto anterior" : "Próxima foto"}
-      className={`absolute top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-sand bg-cream/85 text-ink backdrop-blur transition hover:bg-cream sm:h-12 sm:w-12 ${
+      className={`absolute top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-cream/35 bg-night/40 text-cream backdrop-blur-md transition-colors duration-500 hover:border-cream hover:bg-cream hover:text-ink sm:h-12 sm:w-12 ${
         isPrev ? "left-3 sm:left-4" : "right-3 sm:right-4"
       }`}
     >

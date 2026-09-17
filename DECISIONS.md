@@ -124,3 +124,43 @@ opção mais simples que funcione corretamente.
  HMAC-SHA256 com `MP_WEBHOOK_SECRET`, comparado com `v1` do header
  `x-signature` usando comparação em tempo constante. `data.id` é normalizado
  para minúsculo conforme a documentação do MP.
+## Frontend em camadas (motion)
+
+- **Sem biblioteca de animação.** GSAP, Framer Motion e Lenis resolveriam o
+  mesmo problema, mas custam de 30 a 100 kB de JS e assumem controle da
+  rolagem. Num site que a maior parte dos convidados vai abrir pelo celular,
+  no 4G, entrando por um link de WhatsApp, esse peso é o item mais caro do
+  orçamento. O motor caseiro em `src/lib/motion.ts` tem ~200 linhas e mantém
+  a home em 110 kB de JS no total.
+- **Rolagem nativa, sem *smooth scroll* sintético.** Bibliotecas como o Lenis
+  interceptam a roda e o toque para interpolar a posição. Isso quebra o
+  arrastar do dedo no iOS, a busca com Ctrl+F e a rolagem por teclado, e é
+  justamente o que mais trava em aparelho modesto.
+- **O JS só escreve variáveis CSS.** `--p` (progresso da cena, 0 a 1) é
+  publicada na `<Scene>` e herdada pelos filhos; a animação em si é
+  declarada em CSS com `transform` e `opacity`. Assim o navegador compõe na
+  GPU e o trabalho por quadro no JS é uma atribuição de string.
+- **Leitura e escrita separadas em fases.** O `tick()` lê o `rect` de todas
+  as cenas visíveis antes de escrever qualquer estilo. Intercalar as duas
+  coisas força um recálculo de layout por elemento (*layout thrashing*).
+- **`IntersectionObserver` liga e desliga cada cena.** Fora da tela, a cena
+  não entra na conta do quadro.
+- **Nenhum `filter: blur()` em área grande.** Era o gargalo real: as manchas
+  de cor viraram gradientes radiais (que já nascem suaves) e o fundo esfumado
+  da linha do tempo virou uma miniatura de 48 px esticada — a própria
+  ampliação borra. A home saiu de 36 para 59 quadros por segundo, e segura
+  43 fps com a CPU 6× mais lenta.
+- **Três degraus de degradação**, nesta ordem: `prefers-reduced-motion`
+  (nada se move), `data-lite` (sai o `backdrop-filter`; detectado pelo script
+  inline do layout e, se ele não pegar, pela medição de quadros do
+  `MotionGuard`) e ausência de JavaScript (sem `data-motion="on"` o CSS
+  mantém tudo visível e parado — o site continua inteiro, só sem animação).
+- **Tipografia.** Cormorant Garamond nos títulos (serifada de alto contraste,
+  em peso 300 — é ela que dá o ar de convite impresso) e Inter no texto
+  corrido e na interface. Os tamanhos grandes usam `clamp()` em vez de
+  breakpoints: a escala é contínua do celular ao desktop, sem saltos e sem
+  risco de estourar a largura.
+- **Paleta e motivo.** As cores saem das próprias fotos do ensaio (areia,
+  mar, hora dourada) e do monograma (lilás e azul-periwinkle). A moldura em
+  arco, tirada do desenho da logo, se repete como elemento de identidade:
+  hero do convite, linha do tempo, fotos da história.
