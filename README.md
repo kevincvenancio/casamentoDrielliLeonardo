@@ -336,3 +336,27 @@ na Vercel e faça um novo Redeploy. Sem esse segredo o webhook rejeita tudo com
 
 Em produção a Vercel já fornece HTTPS público, então **o ngrok não é
 necessário** — ele só serve para testar o webhook na sua máquina (seção 5). 
+## CI (GitHub Actions)
+
+O arquivo [`.github/workflows/ci.yml`](.github/workflows/ci.yml) roda a cada
+push na `main` e a cada pull request aberto contra ela:
+
+| Passo | Comando |
+| --- | --- |
+| Lint | `npm run lint` |
+| Checagem de tipos | `npx tsc --noEmit` |
+| Testes | `npm test` |
+| Build de produção | `npm run build` |
+
+**Nenhum segredo precisa ser cadastrado no GitHub.** As rotas que falam com o
+Supabase e o Mercado Pago são `force-dynamic` e leem `process.env` só em tempo
+de execução, então o build do CI não consulta o banco nem o MP.
+
+O **deploy continua sendo da Vercel**, não deste workflow: a integração
+Vercel ↔ GitHub publica a produção a cada push na `main` e cria um preview em
+cada PR. O CI serve para pegar código quebrado antes disso — e, se você ativar
+a proteção de branch (Settings → Branches → Add rule → *Require status checks
+to pass*, marcando o check **Lint, tipos, testes e build**), um PR vermelho
+nem consegue ser mesclado.
+
+Para reproduzir o CI na sua máquina, é exatamente a sequência acima.

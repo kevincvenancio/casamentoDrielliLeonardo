@@ -1,0 +1,53 @@
+name: CI
+
+# Roda em todo push na main e em todo pull request aberto contra a main.
+# O deploy NAO acontece aqui: quem publica e a integracao Vercel <-> GitHub
+# (producao no push da main, preview em cada PR). Este workflow so barra
+# codigo quebrado antes de chegar la.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Varios pushes seguidos no mesmo branch cancelam as execucoes antigas.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, tipos, testes e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Baixar o codigo
+        uses: actions/checkout@v4
+
+      - name: Preparar Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` (e nao `npm install`) para instalar exatamente o que esta
+      # no package-lock.json.
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Checagem de tipos
+        run: npx tsc --noEmit
+
+      - name: Testes
+        run: npm test
+
+      # Nenhum segredo e necessario aqui: as rotas que falam com Supabase e
+      # Mercado Pago sao `force-dynamic` e leem process.env em tempo de
+      # execucao, entao o build nao consulta o banco nem o MP.
+      - name: Build de producao
+        run: npm run build
