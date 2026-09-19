@@ -47,7 +47,7 @@ export default async function AdminPage() {
   );
 
   return (
-    <div className="container-page py-12">
+    <div className="container-page pb-16 pt-32">
       <h1 className="section-title mb-8">Painel</h1>
 
       {/* Totais */}

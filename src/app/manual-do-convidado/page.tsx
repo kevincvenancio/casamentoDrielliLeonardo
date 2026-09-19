@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { wedding } from "@/config/wedding";
 import { manualIcons, type ManualIconKey } from "@/components/ManualIcons";
+import { PageHero } from "@/components/PageHero";
+import { Reveal } from "@/components/motion/Reveal";
+import { Scene, Layer } from "@/components/motion/Scene";
 
 export const metadata = { title: "Manual do Convidado" };
 
@@ -8,40 +11,71 @@ export default function GuestManualPage() {
   const { guestManual } = wedding;
 
   return (
-    <div className="container-page py-16">
-      <header className="mb-12 text-center">
-        <h1 className="section-title">{guestManual.title}</h1>
-        <p className="mx-auto mt-4 max-w-2xl text-stone">{guestManual.intro}</p>
-      </header>
+    <>
+      <PageHero
+        eyebrow="Combinados"
+        title={["Manual do", "Convidado"]}
+        text={guestManual.intro}
+        photo="/images/ensaio/ensaio-06.jpg"
+        alt=""
+      />
 
-      <ul className="mx-auto grid max-w-4xl gap-5 sm:grid-cols-2">
-        {guestManual.items.map((item) => {
-          const Icon = manualIcons[item.icon as ManualIconKey];
-          return (
-            <li
-              key={item.title}
-              className="flex gap-4 rounded-2xl border border-sand bg-white p-6"
-            >
-              <span className="shrink-0 text-stone">
-                {Icon ? <Icon className="h-7 w-7" /> : null}
-              </span>
-              <div>
-                <h2 className="font-serif text-lg text-ink">{item.title}</h2>
-                <p className="mt-1 text-sm text-stone">{item.text}</p>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+      <Scene
+        as="section"
+        mode="through"
+        className="relative overflow-hidden bg-cream py-24 sm:py-32"
+      >
+        <Layer
+          depth={-60}
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-40 top-1/3 h-[34rem] w-[34rem] rounded-full opacity-35"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(143,169,201,0.5), transparent 68%)",
+          }}
+        />
 
-      <div className="mt-12 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-        <Link href="/rsvp" className="btn-primary w-full sm:w-auto">
-          Confirmar presença
-        </Link>
-        <Link href="/dress-code" className="btn-outline w-full sm:w-auto">
-          Ver o dress code
-        </Link>
-      </div>
-    </div>
+        <ul className="container-page relative grid gap-4 sm:gap-5 md:grid-cols-2">
+          {guestManual.items.map((item, i) => {
+            const Icon = manualIcons[item.icon as ManualIconKey];
+            // Três profundidades que se repetem: a lista inteira ondula de
+            // leve, em vez de subir como um bloco só.
+            const depth = [-22, 0, 22][i % 3];
+            return (
+              <li key={item.title}>
+                <Layer depth={depth}>
+                  <Reveal delay={(i % 2) * 90} className="h-full">
+                    <div className="card card-hover flex h-full gap-5 p-6 sm:p-7">
+                      <span className="mt-0.5 shrink-0 text-gold">
+                        {Icon ? <Icon className="h-7 w-7" /> : null}
+                      </span>
+                      <div>
+                        <h2 className="font-serif text-xl font-medium leading-snug text-ink sm:text-2xl">
+                          {item.title}
+                        </h2>
+                        <p className="mt-2 text-sm leading-relaxed text-stone">
+                          {item.text}
+                        </p>
+                      </div>
+                    </div>
+                  </Reveal>
+                </Layer>
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="container-page relative mt-16">
+          <Reveal className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Link href="/rsvp" className="btn-primary w-full sm:w-auto">
+              Confirmar presença
+            </Link>
+            <Link href="/dress-code" className="btn-outline w-full sm:w-auto">
+              Ver o dress code
+            </Link>
+          </Reveal>
+        </div>
+      </Scene>
+    </>
   );
 }

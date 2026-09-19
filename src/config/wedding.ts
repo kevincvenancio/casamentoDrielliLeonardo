@@ -21,6 +21,34 @@ export const wedding = {
   // Frase curta do hero
   tagline: "Vão dizer sim!",
 
+  // Textos que a home usa nas cenas de rolagem. Cada `lines` é uma lista de
+  // linhas: elas sobem uma a uma, na ordem, conforme a pessoa rola. Quebrar
+  // a frase em linhas curtas é o que dá o ritmo -- evite linhas longas.
+  home: {
+    // Convite em tela cheia, logo depois do hero.
+    invitation: {
+      eyebrow: "O convite",
+      lines: [
+        "Depois de tantos",
+        "capítulos a dois,",
+        "chegou o dia de",
+        "escrever o mais bonito.",
+      ],
+      text: "E não daria para escrever esse capítulo sem você. Guarde a data, venha celebrar, dance até o fim.",
+    },
+    // Chamada da linha do tempo.
+    story: {
+      eyebrow: "Nossa História",
+      title: "De uma conversa",
+      titleAccent: "a uma vida inteira",
+    },
+    // Última cena, antes do rodapé.
+    closing: {
+      eyebrow: "Até dezembro",
+      lines: ["Contamos", "os dias", "por você."],
+    },
+  },
+
   // Imagem de capa (coloque a foto em /public/images/cover.jpg).
   // E uma foto do ensaio, em retrato 2:3 -- a home usa essa proporcao na
   // moldura do hero. Trocando por uma foto de outra proporcao, ajuste o
@@ -40,13 +68,36 @@ export const wedding = {
     // Para adicionar um marco, basta acrescentar um item aqui.
     // O campo `text` é opcional -- se quiser contar a história de cada
     // momento, escreva ali que aparece embaixo do título.
+    // O campo `photo` também é opcional: é a foto que aparece na moldura em
+    // arco enquanto a pessoa rola a linha do tempo. Sem ela, o marco entra
+    // só com o texto, sobre a foto do marco anterior.
     timeline: [
-      { date: "2 de março de 2023", title: "A primeira conversa" },
-      { date: "22 de abril de 2023", title: "O primeiro date" },
-      { date: "8 de junho de 2023", title: "O pedido de namoro" },
-      { date: "7 de dezembro de 2025", title: "O pedido de noivado" },
-      { date: "6 de dezembro de 2026", title: "O grande dia" },
-    ] as { date: string; title: string; text?: string }[],
+      {
+        date: "2 de março de 2023",
+        title: "A primeira conversa",
+        photo: "/images/ensaio/ensaio-01.jpg",
+      },
+      {
+        date: "22 de abril de 2023",
+        title: "O primeiro date",
+        photo: "/images/ensaio/ensaio-07.jpg",
+      },
+      {
+        date: "8 de junho de 2023",
+        title: "O pedido de namoro",
+        photo: "/images/ensaio/ensaio-03.jpg",
+      },
+      {
+        date: "7 de dezembro de 2025",
+        title: "O pedido de noivado",
+        photo: "/images/ensaio/ensaio-04.jpg",
+      },
+      {
+        date: "6 de dezembro de 2026",
+        title: "O grande dia",
+        photo: "/images/ensaio/ensaio-11.jpg",
+      },
+    ] as { date: string; title: string; text?: string; photo?: string }[],
 
     // Galeria do ensaio, exibida no fim da pagina em um carrossel.
     // So fotos DEITADAS (paisagem): a galeria fica mais harmonica com
