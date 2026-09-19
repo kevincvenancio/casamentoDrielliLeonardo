@@ -18,7 +18,6 @@ export default function GuestManualPage() {
         text={guestManual.intro}
         photo="/images/ensaio/ensaio-06.jpg"
         alt=""
-        objectPosition="50% 45%"
       />
 
       <Scene

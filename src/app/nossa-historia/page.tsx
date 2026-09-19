@@ -6,6 +6,7 @@ import { PageHero } from "@/components/PageHero";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitText } from "@/components/motion/SplitText";
 import { Scene, Layer } from "@/components/motion/Scene";
+import { focusOf } from "@/lib/photo-focus";
 
 export const metadata = { title: "Nossa História" };
 
@@ -20,7 +21,6 @@ export default function StoryPage() {
         text={story.intro}
         photo="/images/ensaio/ensaio-09.jpg"
         alt="Dentro do mar, Leonardo ergue Drielli no colo em um beijo"
-        objectPosition="50% 40%"
       />
 
       {/* -- A linha do tempo -----------------------------------------------
@@ -68,6 +68,7 @@ export default function StoryPage() {
                               alt={`${item.title} — ${item.date}`}
                               fill
                               sizes="(min-width: 640px) 19rem, 65vw"
+                              style={{ objectPosition: focusOf(item.photo) }}
                               className="object-cover"
                             />
                           </div>

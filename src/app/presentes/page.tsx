@@ -25,7 +25,30 @@ export default async function GiftsPage() {
         text="Sua presença já é o maior presente. Mas se quiser nos mimar, aqui vão algumas sugestões. O pagamento é feito com segurança via Mercado Pago (cartão, Pix ou boleto)."
         photo="/images/ensaio/ensaio-10.jpg"
         alt=""
-        objectPosition="50% 40%"
+        // Atalho para quem ja chegou decidido a mandar um Pix: o bloco de Pix
+        // fica no fim de uma lista longa, e rolar tudo ate la e um pedagio.
+        // E uma ancora de verdade, nao um onClick: funciona sem JavaScript, o
+        // `scroll-behavior: smooth` do <html> faz a descida, e quem pediu
+        // "menos animacao" no sistema recebe o salto direto.
+        action={
+          <a href="#pix" className="btn-light group">
+            Prefiro fazer um Pix
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              className="ml-2.5 transition-transform duration-500 ease-silk group-hover:translate-y-0.5"
+            >
+              <path d="M12 5v14M19 12l-7 7-7-7" />
+            </svg>
+          </a>
+        }
       />
 
       <section className="relative overflow-hidden bg-cream py-20 sm:py-28">

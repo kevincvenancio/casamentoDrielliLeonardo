@@ -6,6 +6,7 @@ import { wedding } from "@/config/wedding";
 import { Scene, Layer } from "@/components/motion/Scene";
 import { SplitText } from "@/components/motion/SplitText";
 import { Reveal } from "@/components/motion/Reveal";
+import { focusOf } from "@/lib/photo-focus";
 
 /**
  * Primeira cena: a foto do casal caminhando para o mar, em tela cheia.
@@ -35,7 +36,8 @@ export function HeroScene() {
             fill
             priority
             sizes="100vw"
-            className="object-cover object-[50%_42%]"
+            className="object-cover"
+            style={{ objectPosition: focusOf("/images/ensaio/ensaio-08.jpg") }}
           />
         </Layer>
 

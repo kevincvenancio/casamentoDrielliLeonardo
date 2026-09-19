@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitText } from "@/components/motion/SplitText";
+import { focusOf } from "@/lib/photo-focus";
 
 /**
  * Tela de retorno do Mercado Pago. Vive fora do fluxo normal do site -- a
@@ -38,7 +39,8 @@ export function PaymentResult({
         alt=""
         fill
         sizes="100vw"
-        className="object-cover object-[60%_45%] opacity-45"
+        style={{ objectPosition: focusOf("/images/ensaio/ensaio-11.jpg") }}
+        className="object-cover opacity-45"
       />
       <div
         aria-hidden="true"

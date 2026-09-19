@@ -6,6 +6,7 @@ import { wedding } from "@/config/wedding";
 import { Scene, Layer } from "@/components/motion/Scene";
 import { SplitText } from "@/components/motion/SplitText";
 import { Reveal } from "@/components/motion/Reveal";
+import { focusOf } from "@/lib/photo-focus";
 
 /**
  * Ultima cena: a foto do pôr do sol e o pedido de confirmacao.
@@ -36,7 +37,8 @@ export function ClosingScene() {
           alt=""
           fill
           sizes="100vw"
-          className="object-cover object-[55%_32%]"
+          className="object-cover"
+          style={{ objectPosition: focusOf("/images/ensaio/ensaio-11.jpg") }}
         />
       </Layer>
 
@@ -53,7 +55,7 @@ export function ClosingScene() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(62% 52% at 50% 42%, rgba(11,21,32,0.62), transparent 72%)",
+            "radial-gradient(66% 56% at 50% 44%, rgba(11,21,32,0.72), transparent 74%)",
         }}
       />
       <div

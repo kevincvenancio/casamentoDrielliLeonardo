@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { wedding } from "@/config/wedding";
 import { Reveal } from "@/components/motion/Reveal";
@@ -14,6 +14,21 @@ export function PixSection() {
     const { pix } = wedding;
     const [open, setOpen] = useState(false);
     const [copied, setCopied] = useState(false);
+
+    // Quem chega pela ancora #pix -- o atalho no topo da pagina de presentes,
+    // ou um link compartilhado -- ja disse o que quer. Abrir o QR direto
+    // poupa um clique que so existia para nao pesar a lista de quem nao veio
+    // atras de Pix. Quem rola a pagina normalmente continua vendo o bloco
+    // fechado.
+    useEffect(() => {
+        const abrirSeForOAlvo = () => {
+            if (window.location.hash === "#pix") setOpen(true);
+        };
+        abrirSeForOAlvo();
+        // A ancora na mesma pagina troca o hash sem remontar o componente.
+        window.addEventListener("hashchange", abrirSeForOAlvo);
+        return () => window.removeEventListener("hashchange", abrirSeForOAlvo);
+    }, []);
 
     async function copyKey() {
         try {
@@ -44,6 +59,10 @@ export function PixSection() {
         <Reveal
             as="section"
             variant="scale"
+            // Destino do atalho que fica no topo da pagina de presentes.
+            // O `scroll-padding-top` do <html> (globals.css) ja desconta o
+            // header fixo, entao a ancora para na altura certa.
+            id="pix"
             className="relative mx-auto mt-20 max-w-3xl overflow-hidden rounded-[1.25rem] border border-cream/12 bg-night p-9 text-center sm:mt-28 sm:p-14"
         >
             {/* Clarão dourado subindo do rodapé do bloco. */}

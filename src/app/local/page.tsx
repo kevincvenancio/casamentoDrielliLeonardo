@@ -20,9 +20,8 @@ export default function VenuePage() {
         eyebrow="O lugar"
         title={["Cerimônia", "& Festa"]}
         text="A cerimônia e a festa acontecem no mesmo endereço. Será uma alegria ter você conosco."
-        photo="/images/ensaio/ensaio-02.jpg"
-        alt=""
-        objectPosition="50% 35%"
+        photo="/images/vista-aerea-wide.jpg"
+        alt="Vista de cima da cerimônia na Villa Vezzane: o deck do altar entre as árvores, o corredor de vidro e as cadeiras dos convidados, com as montanhas ao fundo"
       />
 
       <Scene

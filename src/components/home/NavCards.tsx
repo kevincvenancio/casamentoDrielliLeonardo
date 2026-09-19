@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Scene, Layer } from "@/components/motion/Scene";
 import { SplitText } from "@/components/motion/SplitText";
 import { Reveal } from "@/components/motion/Reveal";
+import { focusOf } from "@/lib/photo-focus";
 
 /**
  * As quatro portas do site. Cada cartao entra com um atraso proprio e fica
@@ -83,6 +84,7 @@ export function NavCards() {
                         alt={card.alt}
                         fill
                         sizes="(min-width: 1024px) 15rem, 45vw"
+                        style={{ objectPosition: focusOf(card.photo) }}
                         className="object-cover transition-transform duration-[1200ms] ease-silk group-hover:scale-[1.07]"
                       />
                       {/* Véu que escurece de baixo para cima e aprofunda no

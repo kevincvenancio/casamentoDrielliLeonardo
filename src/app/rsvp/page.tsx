@@ -28,7 +28,6 @@ export default function RsvpPage() {
         text="Nos ajuda a organizar os lugares e o buffet. Leva menos de um minuto."
         photo="/images/ensaio/ensaio-11.jpg"
         alt=""
-        objectPosition="60% 45%"
       />
 
       <Scene

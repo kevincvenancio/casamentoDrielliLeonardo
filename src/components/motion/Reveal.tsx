@@ -13,6 +13,8 @@ type Props = {
   delay?: number;
   className?: string;
   style?: CSSProperties;
+  /** Para o bloco poder ser alvo de uma ancora (`href="#..."`). */
+  id?: string;
   /** Elemento renderizado. `span` quando o pai for um paragrafo ou titulo. */
   as?: "div" | "span" | "li" | "section" | "header" | "p" | "figure";
 };
@@ -36,6 +38,7 @@ export function Reveal({
   delay = 0,
   className,
   style,
+  id,
   as: Tag = "div",
 }: Props) {
   const ref = useRef<HTMLElement>(null);
@@ -49,6 +52,7 @@ export function Reveal({
     <Tag
       // eslint-disable-next-line -- ref polimorfico: o elemento muda conforme `as`
       ref={ref as any}
+      id={id}
       data-reveal={variant === "blur" || variant === "clip" ? variant : ""}
       className={className}
       style={{

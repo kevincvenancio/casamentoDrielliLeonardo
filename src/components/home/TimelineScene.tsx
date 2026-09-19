@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { wedding } from "@/config/wedding";
 import { Scene, Layer } from "@/components/motion/Scene";
+import { focusOf } from "@/lib/photo-focus";
 
 /**
  * A cena-assinatura: a linha do tempo do casal.
@@ -91,7 +92,8 @@ export function TimelineScene() {
                       alt={`${step.title} — ${step.date}`}
                       fill
                       sizes="(min-width: 1024px) 21rem, 100vw"
-                      className={`object-cover object-center transition-[opacity,transform] duration-[1100ms] ease-silk ${
+                      style={{ objectPosition: focusOf(step.photo) }}
+                      className={`object-cover transition-[opacity,transform] duration-[1100ms] ease-silk ${
                         i === active
                           ? "scale-100 opacity-100"
                           : "scale-110 opacity-0"

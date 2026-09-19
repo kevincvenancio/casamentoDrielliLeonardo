@@ -43,7 +43,6 @@ export default function DressCodePage() {
         text={dressCode.intro}
         photo="/images/ensaio/ensaio-07.jpg"
         alt=""
-        objectPosition="50% 40%"
       />
 
       {/* -- Elas e eles ---------------------------------------------------- */}
