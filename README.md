@@ -354,9 +354,31 @@ de execução, então o build do CI não consulta o banco nem o MP.
 
 O **deploy continua sendo da Vercel**, não deste workflow: a integração
 Vercel ↔ GitHub publica a produção a cada push na `main` e cria um preview em
-cada PR. O CI serve para pegar código quebrado antes disso — e, se você ativar
-a proteção de branch (Settings → Branches → Add rule → *Require status checks
-to pass*, marcando o check **Lint, tipos, testes e build**), um PR vermelho
-nem consegue ser mesclado.
+cada PR. O CI serve para pegar código quebrado antes disso. O ruleset
+**Exigir_verificação** (Settings → Rules → Rulesets) exige o check
+**Lint, tipos, testes e build** na branch padrão, então um PR vermelho não
+consegue ser mesclado.
 
 Para reproduzir o CI na sua máquina, é exatamente a sequência acima.
+
+### Exigência: npm 11.19 ou mais novo
+
+Use **npm >= 11.19.1** para instalar dependências neste projeto. Versões mais
+antigas (a 11.6.2, por exemplo) reescrevem o `package-lock.json` **sem** as
+entradas raiz de `@emnapi/core` e `@emnapi/runtime` — peer deps de
+`@napi-rs/wasm-runtime`, que o `eslint-config-next` puxa via `unrs-resolver`.
+
+Elas toleram a própria omissão, mas o npm 10.x e o 11.19+ recusam o lock com
+`EUSAGE` / *"Missing @emnapi/core from lock file"*. Como o runner do GitHub
+Actions usa o npm que vem com o Node 22, o CI quebra no `npm ci` — enquanto
+tudo continua funcionando na sua máquina e na Vercel, que usa `npm install` e
+tolera a dessincronia. Foi exatamente assim que o primeiro CI do projeto caiu.
+
+Para conferir o lock depois de instalar alguma dependência:
+
+```bash
+npm -v # precisa ser >= 11.19.1
+grep -c '^    "node_modules/@emnapi/' package-lock.json # precisa dar 3
+```
+
+Se der 1, regrave o lock com `npx -y npm@11.19.1 install --package-lock-only`.
