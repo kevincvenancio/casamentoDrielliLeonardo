@@ -32,6 +32,14 @@ jobs:
           node-version: 22
           cache: npm
 
+      # O npm que vem no runner e o 10.x, e ele rejeita este lock: exige que
+      # as peer deps opcionais de @napi-rs/wasm-runtime (@emnapi/core e
+      # @emnapi/runtime, puxadas pelo eslint-config-next) estejam gravadas,
+      # coisa que o npm 11 nao escreve. Usamos aqui o mesmo npm da maquina de
+      # desenvolvimento para que o lock signifique a mesma coisa nos dois lados.
+      - name: Alinhar a versao do npm
+        run: npm install -g npm@11
+
       # `npm ci` (e nao `npm install`) para instalar exatamente o que esta
       # no package-lock.json.
       - name: Instalar dependencias
