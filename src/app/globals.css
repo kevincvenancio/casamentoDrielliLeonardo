@@ -20,6 +20,17 @@
      caso o JS nao rode. */
   --p: 0;
   --enter: 1;
+
+  /* 1% da altura da tela, medido com a barra do navegador ABERTA (svh): no
+     celular a barra some e volta durante a rolagem, e uma cena medida em vh
+     mudaria de tamanho junto. Navegador sem svh fica com vh. */
+  --svh: 1vh;
+}
+
+@supports (height: 1svh) {
+  :root {
+    --svh: 1svh;
+  }
 }
 
 @layer base {
@@ -356,7 +367,7 @@
   --depth: 0;
   transform: translate3d(
       calc(var(--p) * var(--depth-x, 0) * 1px),
-      calc(var(--p) * var(--depth) * 1px),
+      calc(var(--p) * var(--depth) * var(--depth-unit, 1px)),
       0
     )
     scale(calc(var(--layer-scale, 1) + var(--p) * var(--zoom, 0)));
@@ -374,10 +385,103 @@
 .scene-sticky {
   position: sticky;
   top: 0;
-  /* vh primeiro: navegadores antigos ignoram a linha seguinte e ficam com ela. */
-  height: 100vh;
-  height: 100svh;
+  height: calc(100 * var(--svh));
   overflow: hidden;
+}
+
+/* --- Hero ---------------------------------------------------------------- */
+
+/* A cena de abertura NAO fica presa: ela rola com a pagina, e a profundidade
+   vem de cada plano andar a uma fracao diferente da rolagem. Por isso a
+   unidade das camadas aqui e 1% da altura da cena, e nao pixel: `depth={42}`
+   desce 42% da altura enquanto a cena sobe 100% -- a foto anda a 58% da
+   velocidade do dedo, em qualquer tamanho de tela. */
+.hero {
+  --hero-h: max(calc(100 * var(--svh)), 34rem);
+  --depth-unit: calc(var(--hero-h) / 100);
+  height: var(--hero-h);
+}
+
+/* O cabecalho fica transparente sobre o hero, entao o texto que sobe nao
+   pode passar por tras do menu. A mascara o dissolve antes: `--edge` e onde
+   esta o topo da tela, medido dentro da cena (p x altura = o quanto ja
+   rolou), e o degrade vai de invisivel ali ate opaco 4,5rem abaixo.
+
+   O `min()` recolhe a mascara para cima do cabecalho quando a pagina esta
+   parada no topo: numa tela baixa o texto comeca logo abaixo da barra, e nao
+   pode nascer meio apagado. */
+.hero-mask {
+  --edge: calc(
+    var(--p) * var(--hero-h) + min(1, var(--p) * 10) * 3.75rem - 0.25rem
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent var(--edge),
+    #000 calc(var(--edge) + 4.5rem)
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent var(--edge),
+    #000 calc(var(--edge) + 4.5rem)
+  );
+}
+
+/* --- Linha do tempo ------------------------------------------------------ */
+
+/* A foto fica presa na tela; os marcos NAO -- eles rolam por cima dela, na
+   velocidade do dedo, como qualquer texto da pagina.
+
+   --rest  : onde o topo do primeiro marco descansa quando a cena encosta no
+             topo da tela (e onde o ultimo esta quando ela solta);
+   --pitch : a distancia entre um marco e o seguinte.
+
+   No celular os marcos vivem na metade de baixo, sobre a parte escura do
+   veu, e deixam os rostos livres. No desktop eles correm ao lado do arco. */
+.timeline {
+  --rest: calc(58 * var(--svh));
+  --pitch: calc(46 * var(--svh));
+}
+
+@media (min-width: 1024px) {
+  .timeline {
+    --rest: calc(40 * var(--svh));
+    --pitch: calc(40 * var(--svh));
+  }
+}
+
+/* A lista ocupa o mesmo lugar da foto presa: sobe uma tela inteira para
+   ficar por cima dela. */
+.timeline-flow {
+  margin-top: calc(-100 * var(--svh));
+  padding-top: var(--rest);
+}
+
+.timeline-step {
+  min-height: var(--pitch);
+}
+
+/* O ultimo marco fecha a conta: quando a foto solta, ele esta exatamente
+   onde o primeiro estava quando ela prendeu. */
+.timeline-step:last-child {
+  min-height: calc(100 * var(--svh) - var(--rest));
+}
+
+/* So o marco da vez fica aceso. No celular os outros somem (ha uma foto por
+   baixo); no desktop ficam esmaecidos, como uma lista. Sem JS nada disso
+   vale e todos aparecem. */
+[data-motion="on"] .timeline-step {
+  opacity: 0;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 1024px) {
+  [data-motion="on"] .timeline-step {
+    opacity: 0.28;
+  }
+}
+
+[data-motion="on"] .timeline-step.is-active {
+  opacity: 1;
 }
 
 /* --- Preferencias e aparelhos modestos ---------------------------------- */
@@ -396,6 +500,12 @@
 
 [data-lite="1"] .grain::after {
   display: none;
+}
+
+/* Sem o desfoque, o vidro escuro do cabecalho deixaria ler o que passa por
+   baixo dele: no modo leve ele fica quase opaco. */
+[data-lite="1"] .header-dark {
+  background-color: rgba(11, 21, 32, 0.92);
 }
 
 /* Um `backdrop-filter` por cartao, vezes vinte cartoes numa lista, e caro.

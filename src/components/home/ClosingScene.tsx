@@ -22,6 +22,7 @@ export function ClosingScene() {
     <Scene
       as="section"
       mode="through"
+      data-header="dark"
       className="relative overflow-hidden bg-night"
     >
       {/* -- Plano 1: o fim de tarde ------------------------------------- */}

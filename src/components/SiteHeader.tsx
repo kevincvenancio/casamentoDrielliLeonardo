@@ -14,34 +14,78 @@ const nav = [
   { href: "/presentes", label: "Presentes" },
 ];
 
+/**
+ * A roupa da barra depende do que esta por baixo dela:
+ * - "light": vidro creme, texto escuro -- o padrao, sobre as secoes claras;
+ * - "dark":  vidro escuro, texto claro -- sobre uma cena escura;
+ * - "clear": sem fundo, so o texto claro -- sobre a foto do hero.
+ *
+ * Quem decide e a propria pagina: a cena escura se anuncia com
+ * `data-header="dark"` ou `data-header="clear"`, e a barra troca enquanto
+ * estiver inteira em cima dela.
+ */
+type Tone = "light" | "dark" | "clear";
+
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const headerRef = useRef<HTMLElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
 
-  // Quando a barra esta sobre fundo escuro ela fica sem fundo e com texto
-  // claro. Isso acontece em dois casos: no topo da home, sobre o hero, e com
-  // o menu aberto, sobre a cortina -- onde um fundo creme viraria uma faixa
-  // clara atravessada na cortina.
-  const overDark = open || (pathname === "/" && !scrolled);
+  // O tom medido vale so para a pagina em que foi medido. Na troca de rota,
+  // ate a primeira medicao, vale o palpite: a home abre sobre o hero.
+  const [measured, setMeasured] = useState<{ path: string; tone: Tone } | null>(
+    null,
+  );
+  const tone: Tone =
+    measured && measured.path === pathname
+      ? measured.tone
+      : pathname === "/"
+        ? "clear"
+        : "light";
 
-  // Estado de rolagem + fio de progresso da leitura, no mesmo listener.
+  // Com o menu aberto a barra fica sobre a cortina escura: sem fundo (um
+  // vidro viraria uma faixa atravessada na cortina) e com texto claro.
+  const clear = open || tone === "clear";
+  const onDark = open || tone !== "light";
+
+  // Tom da barra + fio de progresso da leitura, no mesmo listener.
   useEffect(() => {
     let frame = 0;
 
     function update() {
       frame = 0;
-      const y = window.scrollY;
-      setScrolled(y > 24);
 
+      // -- Leituras ------------------------------------------------------
+      const band = headerRef.current?.offsetHeight ?? 68;
+      let next: Tone = "light";
+      // A barra so muda quando esta INTEIRA sobre a cena escura. Assim, na
+      // descida, o vidro creme entra no instante em que a secao clara
+      // encosta na base da barra -- as duas se emendam -- em vez de virar
+      // uma faixa clara atravessada na foto.
+      for (const zone of document.querySelectorAll<HTMLElement>("[data-header]")) {
+        const rect = zone.getBoundingClientRect();
+        if (rect.top <= 1 && rect.bottom >= band) {
+          next = zone.dataset.header === "clear" ? "clear" : "dark";
+          break;
+        }
+      }
+
+      const y = window.scrollY;
       const doc = document.documentElement;
       const max = doc.scrollHeight - window.innerHeight;
       const p = max > 0 ? Math.min(1, y / max) : 0;
+
+      // -- Escritas ------------------------------------------------------
       // scaleX em vez de width: o navegador nao recalcula layout nenhum.
       if (barRef.current) {
         barRef.current.style.transform = `scaleX(${p})`;
       }
+      setMeasured((prev) =>
+        prev && prev.path === pathname && prev.tone === next
+          ? prev
+          : { path: pathname, tone: next },
+      );
     }
 
     function onScroll() {
@@ -56,7 +100,7 @@ export function SiteHeader() {
       window.removeEventListener("resize", onScroll);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [pathname]);
 
   // Menu aberto trava a rolagem do fundo. O `scrollbar-gutter: stable` do
   // globals.css garante que a largura nao mude ao travar.
@@ -88,26 +132,40 @@ export function SiteHeader() {
       <MobileMenu open={open} pathname={pathname} onClose={() => setOpen(false)} />
 
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow,border-color] duration-700 ease-silk ${
-          overDark
-            ? "border-b border-transparent bg-transparent"
-            : "border-b border-sand/70 bg-cream/85 backdrop-blur-xl lite-drop-blur"
+        ref={headerRef}
+        className={`fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color,backdrop-filter,-webkit-backdrop-filter] duration-500 ease-silk ${
+          clear
+            ? "border-transparent bg-transparent"
+            : tone === "dark"
+              ? "header-dark border-cream/10 bg-night/55 backdrop-blur-xl lite-drop-blur"
+              : "border-sand/70 bg-cream/85 backdrop-blur-xl lite-drop-blur"
         }`}
         style={{ height: "var(--header-h)" }}
       >
+        {/* Sobre a foto do hero a barra nao tem fundo. O que garante a
+            leitura do menu e esta penumbra: um degrade que escurece o topo
+            da tela e some sem deixar borda, em vez de uma faixa. */}
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-x-0 top-0 -z-10 bg-gradient-to-b from-night/65 to-transparent transition-opacity duration-700 ${
+            tone === "clear" && !open ? "opacity-100" : "opacity-0"
+          }`}
+          style={{ height: "calc(var(--header-h) * 2)" }}
+        />
+
         <div className="container-wide flex h-full items-center justify-between gap-6">
           <Link
             href="/"
             onClick={() => setOpen(false)}
             aria-label={`${wedding.couple.bride} e ${wedding.couple.groom} — ir para o início`}
-            className={`group flex items-baseline gap-2 font-serif text-xl tracking-wide transition-colors duration-700 sm:text-2xl ${
-              overDark ? "text-cream" : "text-ink"
+            className={`group flex items-baseline gap-2 font-serif text-xl tracking-wide transition-colors duration-500 sm:text-2xl ${
+              onDark ? "text-cream" : "text-ink"
             }`}
           >
             <span>{wedding.couple.bride}</span>
             <span
-              className={`text-base italic transition-colors duration-700 ${
-                overDark ? "text-cream/70" : "text-gold"
+              className={`text-base italic transition-colors duration-500 ${
+                onDark ? "text-cream/70" : "text-gold"
               }`}
             >
               &
@@ -125,7 +183,7 @@ export function SiteHeader() {
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   className={`group relative text-[0.72rem] font-medium uppercase tracking-[0.18em] transition-colors duration-500 ${
-                    overDark
+                    onDark
                       ? active
                         ? "text-cream"
                         : "text-cream/65 hover:text-cream"
@@ -149,7 +207,7 @@ export function SiteHeader() {
             <Link
               href="/rsvp"
               className={`rounded-full border px-6 py-2.5 text-[0.7rem] font-medium uppercase tracking-[0.18em] transition-all duration-500 ease-silk hover:-translate-y-0.5 ${
-                overDark
+                onDark
                   ? "border-cream/45 text-cream hover:bg-cream hover:text-ink"
                   : "border-ink bg-ink text-cream hover:bg-stone"
               }`}
@@ -168,7 +226,7 @@ export function SiteHeader() {
             className={`relative z-[60] -mr-2 inline-flex h-11 w-11 items-center justify-center rounded-full transition-colors duration-500 lg:hidden ${
               open
                 ? "text-cream"
-                : overDark
+                : onDark
                   ? "text-cream hover:bg-cream/10"
                   : "text-ink hover:bg-sand/60"
             }`}
@@ -193,7 +251,7 @@ export function SiteHeader() {
         <div
           aria-hidden="true"
           className={`absolute inset-x-0 bottom-0 h-px transition-opacity duration-700 ${
-            overDark ? "opacity-0" : "opacity-100"
+            clear ? "opacity-0" : "opacity-100"
           }`}
         >
           <div

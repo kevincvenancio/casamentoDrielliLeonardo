@@ -11,65 +11,78 @@ import { focusOf } from "@/lib/photo-focus";
 /**
  * Primeira cena: a foto do casal caminhando para o mar, em tela cheia.
  *
- * O trecho tem 170vh de altura e o conteudo dentro dele fica preso (sticky)
- * por uma tela inteira. Enquanto a pessoa rola essa sobra, os planos se
- * separam: a foto afunda devagar e cresce, a bruma sobe um pouco, o texto
- * sobe bem mais rapido e se apaga. E o que da a sensacao de profundidade --
- * cada plano a uma distancia diferente do olho.
+ * A cena NAO fica presa: rola com a pagina, na velocidade do dedo. A
+ * profundidade vem de cada plano andar a uma fracao diferente dessa rolagem
+ * -- a foto fica para tras (58% da velocidade) e cresce um pouco, a bruma
+ * vem logo depois, o texto sai um nada mais rapido e se dissolve antes de
+ * chegar ao menu. Nada para, nada da tranco: do primeiro pixel ao ultimo,
+ * tudo se move em linha reta com a rolagem.
+ *
+ * Aqui `depth` e medido em % da altura da cena, e nao em pixels (ver `.hero`
+ * em globals.css).
  */
 export function HeroScene() {
   const { couple, dateLabel, timeLabel, tagline, venue } = wedding;
 
   return (
-    <Scene mode="pin" as="section" className="relative h-[170vh]">
-      <div className="scene-sticky bg-night">
-        {/* -- Plano 1: a fotografia -------------------------------------- */}
-        <Layer
-          depth={90}
-          zoom={0.14}
-          scale={1.04}
-          className="absolute inset-0 origin-center"
-        >
-          <Image
-            src="/images/ensaio/ensaio-08.jpg"
-            alt={`${couple.bride} e ${couple.groom} de mãos dadas, caminhando em direção ao mar`}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-            style={{ objectPosition: focusOf("/images/ensaio/ensaio-08.jpg") }}
-          />
-        </Layer>
-
-        {/* -- Plano 2: luz e sombra -------------------------------------- */}
-        {/* Dois degrades cruzados escurecem topo e base o suficiente para o
-            texto ter contraste, deixando o mar aberto no meio. */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-b from-night/80 via-night/25 to-night"
+    <Scene
+      mode="exit"
+      as="section"
+      data-header="clear"
+      className="hero relative overflow-hidden bg-night"
+    >
+      {/* -- Plano 1: a fotografia ---------------------------------------- */}
+      {/* O que a foto desce, a cena sobe mais: a faixa que ela descobre no
+          topo ja saiu da tela, e nunca aparece. */}
+      <Layer
+        depth={42}
+        zoom={0.08}
+        scale={1.04}
+        className="absolute inset-0 origin-center"
+      >
+        <Image
+          src="/images/ensaio/ensaio-08.jpg"
+          alt={`${couple.bride} e ${couple.groom} de mãos dadas, caminhando em direção ao mar`}
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+          style={{ objectPosition: focusOf("/images/ensaio/ensaio-08.jpg") }}
         />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-t from-night via-transparent to-transparent"
-        />
+      </Layer>
 
-        {/* -- Plano 3: bruma ---------------------------------------------- */}
-        {/* Um halo quente no horizonte, como a luz do fim da tarde. Sai no
-            modo leve: e o unico desfoque grande da cena. */}
-        <Layer
-          depth={-40}
-          aria-hidden="true"
-          className="absolute inset-x-0 top-[38%] h-[46%] opacity-60"
-          style={{
-            background:
-              "radial-gradient(60% 60% at 50% 50%, rgba(196,160,99,0.5), rgba(143,169,201,0.18) 55%, transparent 75%)",
-          }}
-        />
+      {/* -- Plano 2: luz e sombra ---------------------------------------- */}
+      {/* Dois degrades cruzados escurecem topo e base o suficiente para o
+          texto ter contraste, deixando o mar aberto no meio. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-b from-night/80 via-night/25 to-night"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-t from-night via-transparent to-transparent"
+      />
 
-        {/* -- Plano 4: o texto -------------------------------------------- */}
+      {/* -- Plano 3: bruma ------------------------------------------------ */}
+      {/* Um halo quente no horizonte, como a luz do fim da tarde. E um
+          degrade radial, nao um desfoque: ja nasce suave. */}
+      <Layer
+        depth={22}
+        aria-hidden="true"
+        className="absolute inset-x-0 top-[38%] h-[46%] opacity-60"
+        style={{
+          background:
+            "radial-gradient(60% 60% at 50% 50%, rgba(196,160,99,0.5), rgba(143,169,201,0.18) 55%, transparent 75%)",
+        }}
+      />
+
+      {/* -- Plano 4: o texto ---------------------------------------------- */}
+      {/* A mascara mora num involucro parado: se estivesse na propria
+          camada, subiria junto com o texto e nao apagaria nada. */}
+      <div className="hero-mask absolute inset-0">
         <Layer
-          depth={-170}
-          fade={0.85}
+          depth={-8}
+          fade={1.3}
           className="relative flex h-full flex-col items-center justify-center px-5 text-center"
           style={{ paddingTop: "var(--header-h)" }}
         >
@@ -116,27 +129,27 @@ export function HeroScene() {
             </Link>
           </Reveal>
         </Layer>
-
-        {/* -- Plano 5: grao ----------------------------------------------- */}
-        <div
-          aria-hidden="true"
-          className="grain pointer-events-none absolute inset-0 overflow-hidden"
-        />
-
-        {/* -- Plano 6: o convite para rolar -------------------------------- */}
-        {/* Só o fio, sem a palavra "role": o texto ficava colado nos botões
-            em telas de 900px de altura, e um traço descendo já diz o que é. */}
-        <Layer
-          depth={-60}
-          fade={1}
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-7 flex justify-center"
-        >
-          <span className="relative block h-11 w-px overflow-hidden bg-cream/25">
-            <span className="animate-cue-slide absolute inset-x-0 top-0 block h-1/2 bg-gold" />
-          </span>
-        </Layer>
       </div>
+
+      {/* -- Plano 5: grao -------------------------------------------------- */}
+      <div
+        aria-hidden="true"
+        className="grain pointer-events-none absolute inset-0 overflow-hidden"
+      />
+
+      {/* -- Plano 6: o convite para rolar ---------------------------------- */}
+      {/* Só o fio, sem a palavra "role": o texto ficava colado nos botões
+          em telas de 900px de altura, e um traço descendo já diz o que é.
+          Some logo no começo da rolagem: o recado já foi entendido. */}
+      <Layer
+        fade={6}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-7 flex justify-center"
+      >
+        <span className="relative block h-11 w-px overflow-hidden bg-cream/25">
+          <span className="animate-cue-slide absolute inset-x-0 top-0 block h-1/2 bg-gold" />
+        </span>
+      </Layer>
     </Scene>
   );
 }
