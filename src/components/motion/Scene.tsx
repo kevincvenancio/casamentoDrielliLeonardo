@@ -12,6 +12,15 @@ type SceneProps = {
   /** Recebe o progresso (0 a 1) a cada frame. Use so quando o CSS nao basta. */
   onProgress?: (p: number) => void;
   as?: "div" | "section" | "header" | "footer";
+  "aria-label"?: string;
+  /**
+   * Avisa o cabecalho do site que este trecho e escuro, para ele trocar de
+   * roupa enquanto estiver sobre a cena (ver SiteHeader):
+   * - "clear": sem fundo nenhum, so o texto claro -- para foto em tela cheia;
+   * - "dark": vidro escuro, para cenas escuras em que o conteudo passa por
+   *   baixo da barra.
+   */
+  "data-header"?: "clear" | "dark";
 };
 
 /**
@@ -26,6 +35,8 @@ export function Scene({
   style,
   onProgress,
   as: Tag = "div",
+  "aria-label": ariaLabel,
+  "data-header": headerTone,
 }: SceneProps) {
   const ref = useRef<HTMLElement>(null);
 
@@ -43,8 +54,14 @@ export function Scene({
   }, [mode]);
 
   return (
-    // eslint-disable-next-line -- ref polimorfico: o elemento muda conforme `as`
-    <Tag ref={ref as any} className={className} style={style}>
+    <Tag
+      // eslint-disable-next-line -- ref polimorfico: o elemento muda conforme `as`
+      ref={ref as any}
+      className={className}
+      style={style}
+      aria-label={ariaLabel}
+      data-header={headerTone}
+    >
       {children}
     </Tag>
   );
@@ -56,6 +73,9 @@ type LayerProps = {
    * Distancia do plano, em pixels de deslocamento ao longo da cena inteira.
    * Negativo sobe (plano de fundo, mais lento); positivo desce.
    * Fundo ~ -40, meio ~ 60, frente ~ 160.
+   *
+   * A cena pode trocar a unidade com a variavel CSS `--depth-unit`: no hero
+   * ela vale 1% da altura da cena, e `depth={42}` vira "42% da altura".
    */
   depth?: number;
   /** Deslocamento horizontal, na mesma escala de `depth`. */

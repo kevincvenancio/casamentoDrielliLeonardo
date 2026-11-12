@@ -64,7 +64,7 @@ Quatro pecas, todas em `src/components/motion/`:
 
 | Peca | Para que serve |
 | --- | --- |
-| `<Scene mode>` | Delimita um trecho e publica o progresso da rolagem (0 a 1) na variavel CSS `--p`, que os filhos herdam. `mode="pin"` e para as cenas presas na tela; `"through"` para o parallax comum. |
+| `<Scene mode>` | Delimita um trecho e publica o progresso da rolagem (0 a 1) na variavel CSS `--p`, que os filhos herdam. `"through"` e o parallax comum; `"exit"` e para a cena que abre a pagina (o hero); `"pin"` para um trecho com filho preso na tela (a foto da linha do tempo). `data-header="dark"` ou `"clear"` avisa o cabecalho de que a cena e escura. |
 | `<Layer depth>` | Uma camada dentro da cena. `depth` e o quanto ela anda ao longo do trecho, em pixels: negativo sobe, positivo desce. Fundo ~ -40, meio ~ 30, frente ~ 90. Aceita tambem `zoom` e `fade`. |
 | `<Reveal>` | Revela o bloco quando ele entra na tela. `delay` escalona uma lista. |
 | `<SplitText lines>` | Titulo que sobe palavra a palavra, cada uma saindo da propria mascara. |

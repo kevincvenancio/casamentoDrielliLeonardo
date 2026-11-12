@@ -136,6 +136,21 @@ opção mais simples que funcione corretamente.
   interceptam a roda e o toque para interpolar a posição. Isso quebra o
   arrastar do dedo no iOS, a busca com Ctrl+F e a rolagem por teclado, e é
   justamente o que mais trava em aparelho modesto.
+- **Nada de texto preso na tela.** A primeira versão prendia (`sticky`) o
+  hero inteiro e a linha do tempo inteira: a pessoa rolava, a página não
+  saía do lugar e o texto ficava parado — a sensação era de site travado.
+  Agora só **fotos** ficam presas; todo texto anda na velocidade do dedo.
+  O hero rola solto, com a foto a 58% da velocidade (parallax), e o texto se
+  dissolve por uma máscara antes de chegar ao menu. Na linha do tempo a foto
+  fica fixa e os marcos rolam por cima dela; a foto troca quando o marco
+  seguinte cruza uma linha da tela (`IntersectionObserver`, sem ouvir a
+  rolagem).
+- **O cabeçalho segue a cena que está por baixo**, em vez de virar creme
+  aos 24 px de rolagem (o que deixava uma faixa clara atravessada na foto
+  escura do hero). A cena escura se anuncia com `data-header`: `"clear"`
+  (hero — barra sem fundo, só uma penumbra no topo) ou `"dark"` (vidro
+  escuro). A troca acontece quando a barra está inteira sobre a cena, então
+  o vidro creme entra no instante em que a seção clara encosta nela.
 - **O JS só escreve variáveis CSS.** `--p` (progresso da cena, 0 a 1) é
   publicada na `<Scene>` e herdada pelos filhos; a animação em si é
   declarada em CSS com `transform` e `opacity`. Assim o navegador compõe na

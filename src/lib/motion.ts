@@ -26,7 +26,12 @@ export type SceneMode =
   /** Progresso dentro de um trecho alto com filho `position: sticky`:
    *  0 quando o topo encosta no topo da tela, 1 quando o fim do trecho
    *  chega la. E o "scrub" das cenas fixas. */
-  | "pin";
+  | "pin"
+  /** O quanto o elemento ja saiu por cima: 0 enquanto o topo dele esta no
+   *  topo da tela (ou abaixo), 1 quando a base passa por la. E o progresso
+   *  da cena que ABRE a pagina -- ela ja nasce na tela, entao "through"
+   *  comecaria em 0,5 e as camadas nasceriam deslocadas. */
+  | "exit";
 
 type Entry = {
   el: HTMLElement;
@@ -57,6 +62,11 @@ function progressFor(entry: Entry, rect: DOMRect): number {
     const travel = rect.height - vh;
     if (travel <= 0) return rect.top <= 0 ? 1 : 0;
     return clamp01(-rect.top / travel);
+  }
+
+  if (entry.mode === "exit") {
+    if (rect.height <= 0) return 0;
+    return clamp01(-rect.top / rect.height);
   }
 
   if (entry.mode === "enter") {
