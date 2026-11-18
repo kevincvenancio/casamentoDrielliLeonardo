@@ -3,6 +3,13 @@ export type GiftStatus = "available" | "reserved" | "paid";
 
 export type PaymentStatus = "pending" | "approved" | "rejected" | "refunded";
 
+/**
+ * De onde veio o pagamento.
+ * - "mercadopago": checkout + webhook.
+ * - "pix_manual": Pix direto na conta, lancado a mao no painel.
+ */
+export type PaymentSource = "mercadopago" | "pix_manual";
+
 export interface Gift {
   id: string;
   title: string;
@@ -43,6 +50,8 @@ export interface Payment {
   buyer_email: string | null;
   amount_cents: number | null;
   status: PaymentStatus;
+  /** Ausente so se a migration 0004 ainda nao rodou (= mercadopago). */
+  source?: PaymentSource;
   /** Ate quando este checkout pendente segura uma unidade. */
   reserved_until: string | null;
   raw_payload: unknown;

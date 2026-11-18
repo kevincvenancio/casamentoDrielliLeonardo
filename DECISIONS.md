@@ -20,6 +20,16 @@ opção mais simples que funcione corretamente.
  login (`/api/admin/login`) grava um cookie httpOnly com um token derivado
  (SHA256) da senha; a página `/admin` valida o cookie. Sem gestão de usuários
  — suficiente para o escopo.
+- **Pix direto é lançado à mão.** O Pix pelo QR da página de presentes cai
+ direto na conta dos noivos e o Mercado Pago nunca fica sabendo. O painel
+ tem um formulário (nome + valor) que grava uma linha em `payments` já
+ `approved`, **sem `gift_id`** e com `source = 'pix_manual'` (migration
+ 0004). Reaproveitar `payments` faz o lançamento entrar no total arrecadado
+ sem tabela nova, e a falta de `gift_id` garante que ele não consome
+ estoque. O valor é lido no formato brasileiro (`1.500,00`; um ponto
+ seguido de 3 dígitos é milhar) e convertido para centavos sem float. Só
+ linhas `pix_manual` podem ser removidas pelo painel, para corrigir erro de
+ digitação; pagamento do Mercado Pago nunca.
 
 ## Fluxo de pagamento
 
