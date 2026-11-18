@@ -40,11 +40,13 @@ src/
  api/webhook/mercadopago<- POST webhook do MP
  api/rsvp <- POST confirmacao de presenca
  api/admin/login <- login do painel
+ api/admin/pix <- lanca/remove Pix direto recebido (painel)
  (paginas)/... <- home, nossa-historia, local, presentes, rsvp,
  pagamento/{sucesso,pendente,erro}, admin
 supabase/
  migrations/0001_init.sql <- schema + RLS
  migrations/0003_gift_stock.sql <- estoque + funcao reserve_gift_unit
+ migrations/0004_manual_pix.sql <- payments.source (Pix direto lancado no painel)
  estoque.sql <- receitas prontas p/ gerenciar estoque
  seed.ts <- ~12 presentes de exemplo
 tests/ <- testes de estoque, reserva e webhook (vitest)

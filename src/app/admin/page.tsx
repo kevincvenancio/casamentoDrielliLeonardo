@@ -1,6 +1,10 @@
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { createServiceClient } from "@/lib/supabase";
 import { AdminLogin } from "@/components/AdminLogin";
+import {
+  DeleteManualPixButton,
+  ManualPixForm,
+} from "@/components/ManualPixForm";
 import { formatBRL } from "@/lib/format";
 import { listGifts } from "@/lib/gifts";
 import type { Guest, Payment } from "@/lib/types";
@@ -30,7 +34,11 @@ export default async function AdminPage() {
     ]);
 
   const guests = (guestsData ?? []) as Guest[];
-  const payments = (paymentsData ?? []) as Payment[];
+  const approved = (paymentsData ?? []) as Payment[];
+  // Separados em memoria (e nao no SQL) para o painel continuar abrindo
+  // mesmo antes da migration 0004: sem a coluna, tudo e Mercado Pago.
+  const payments = approved.filter((p) => p.source !== "pix_manual");
+  const manualPix = approved.filter((p) => p.source === "pix_manual");
 
   // Com estoque, o mesmo presente aparece varias vezes na lista de
   // pagamentos -- o titulo deixou de ser adivinhavel pelo valor.
@@ -41,10 +49,11 @@ export default async function AdminPage() {
     (acc, g) => acc + 1 + (g.companions ?? 0),
     0
   );
-  const totalRaisedCents = payments.reduce(
-    (acc, p) => acc + (p.amount_cents ?? 0),
-    0
-  );
+  const sumCents = (list: Payment[]) =>
+    list.reduce((acc, p) => acc + (p.amount_cents ?? 0), 0);
+  const mercadoPagoCents = sumCents(payments);
+  const manualPixCents = sumCents(manualPix);
+  const totalRaisedCents = mercadoPagoCents + manualPixCents;
 
   return (
     <div className="container-page pb-16 pt-32">
@@ -57,6 +66,7 @@ export default async function AdminPage() {
         <StatCard
           label="Arrecadado (aprovado)"
           value={formatBRL(totalRaisedCents)}
+          hint={`Mercado Pago ${formatBRL(mercadoPagoCents)} · Pix direto ${formatBRL(manualPixCents)}`}
         />
       </div>
 
@@ -162,10 +172,63 @@ export default async function AdminPage() {
         </div>
       </section>
 
+      {/* Pix direto lancado a mao */}
+      <section className="mb-12">
+        <h2 className="mb-1 font-serif text-2xl">
+          Pix direto ({manualPix.length})
+        </h2>
+        <p className="mb-4 text-sm text-stone">
+          Pix feito pelo QR da página de presentes cai direto na conta e não
+          passa pelo Mercado Pago. Lance aqui cada um que chegar para ele entrar
+          no total arrecadado.
+        </p>
+        <div className="mb-4">
+          <ManualPixForm />
+        </div>
+        <div className="overflow-x-auto rounded-xl border border-sand bg-white">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-sand/50 text-stone">
+              <tr>
+                <th className="p-3">Quem fez</th>
+                <th className="p-3">Valor</th>
+                <th className="p-3">Lançado em</th>
+                <th className="p-3">
+                  <span className="sr-only">Ações</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {manualPix.map((p) => (
+                <tr key={p.id} className="border-t border-sand">
+                  <td className="p-3 font-medium">{p.buyer_name || "-"}</td>
+                  <td className="p-3">{formatBRL(p.amount_cents ?? 0)}</td>
+                  <td className="p-3 text-stone">
+                    {new Date(p.created_at).toLocaleString("pt-BR")}
+                  </td>
+                  <td className="p-3 text-right">
+                    <DeleteManualPixButton
+                      id={p.id}
+                      label={`${p.buyer_name ?? "?"} (${formatBRL(p.amount_cents ?? 0)})`}
+                    />
+                  </td>
+                </tr>
+              ))}
+              {manualPix.length === 0 && (
+                <tr>
+                  <td className="p-3 text-stone" colSpan={4}>
+                    Nenhum Pix direto lançado ainda.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* Pagamentos aprovados */}
       <section>
         <h2 className="mb-4 font-serif text-2xl">
-          Pagamentos aprovados ({payments.length})
+          Mercado Pago: pagamentos aprovados ({payments.length})
         </h2>
         <div className="overflow-x-auto rounded-xl border border-sand bg-white">
           <table className="w-full text-left text-sm">
@@ -242,11 +305,20 @@ function Acompanhantes({ guest }: { guest: Guest }) {
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+}) {
   return (
     <div className="rounded-xl border border-sand bg-white p-6">
       <p className="text-xs uppercase tracking-widest text-stone">{label}</p>
       <p className="mt-2 font-serif text-3xl">{value}</p>
+      {hint && <p className="mt-1 text-xs text-stone">{hint}</p>}
     </div>
   );
 }
