@@ -27,7 +27,10 @@ export async function createPreference(input: {
   externalReference: string;
   buyerEmail?: string | null;
   siteUrl: string;
+  /** Prefixo das telas de retorno: /pagamento (site) ou /presentear (avulsa). */
+  returnPath?: string;
 }): Promise<{ id: string; init_point: string }> {
+  const back = `${input.siteUrl}${input.returnPath ?? "/pagamento"}`;
   const body = {
     items: [
       {
@@ -41,9 +44,9 @@ export async function createPreference(input: {
     payer: input.buyerEmail ? { email: input.buyerEmail } : undefined,
     external_reference: input.externalReference,
     back_urls: {
-      success: `${input.siteUrl}/pagamento/sucesso`,
-      pending: `${input.siteUrl}/pagamento/pendente`,
-      failure: `${input.siteUrl}/pagamento/erro`,
+      success: `${back}/sucesso`,
+      pending: `${back}/pendente`,
+      failure: `${back}/erro`,
     },
     auto_return: "approved",
     notification_url: `${input.siteUrl}/api/webhook/mercadopago`,

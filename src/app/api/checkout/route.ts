@@ -7,6 +7,7 @@ import {
   type ReserveStore,
   type ReserveUnitRow,
 } from "@/lib/reserve-core";
+import { returnBasePath } from "@/lib/gift-only";
 
 export const dynamic = "force-dynamic";
 
@@ -51,7 +52,12 @@ function supabaseReserveStore(supabase: SupabaseClient): ReserveStore {
 }
 
 export async function POST(req: NextRequest) {
-  let body: { giftId?: string; buyerName?: string; buyerEmail?: string };
+  let body: {
+    giftId?: string;
+    buyerName?: string;
+    buyerEmail?: string;
+    origin?: string;
+  };
   try {
     body = await req.json();
   } catch {
@@ -59,6 +65,8 @@ export async function POST(req: NextRequest) {
   }
 
   const { giftId, buyerName, buyerEmail } = body;
+  // Qualquer valor desconhecido cai no retorno normal do site.
+  const origin = body.origin === "avulso" ? "avulso" : "site";
   if (!giftId || !buyerName) {
     return NextResponse.json(
       { error: "giftId e buyerName sao obrigatorios." },
@@ -106,6 +114,7 @@ export async function POST(req: NextRequest) {
       externalReference: reservation.paymentId,
       buyerEmail: buyerEmail ?? null,
       siteUrl,
+      returnPath: returnBasePath(origin),
     });
 
     await supabase

@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { wedding } from "@/config/wedding";
+import { isGiftOnly } from "@/lib/gift-only";
 
 const links = [
   { href: "/nossa-historia", label: "Nossa História" },
@@ -11,6 +15,10 @@ const links = [
 ];
 
 export function SiteFooter() {
+  // Na pagina avulsa de presentes o rodape fica so com o nome do casal: sem
+  // data, local nem links para o resto do site.
+  const giftOnly = isGiftOnly(usePathname());
+
   return (
     <footer className="relative overflow-hidden border-t border-cream/10 bg-night">
       {/* Luz baixa vinda do rodapé, como o último clarão do dia. */}
@@ -31,28 +39,36 @@ export function SiteFooter() {
               <span className="mx-3 italic text-gold">&amp;</span>
               {wedding.couple.groom}
             </p>
-            <p className="mt-4 text-[0.7rem] uppercase tracking-[0.3em] text-cream/55">
-              {wedding.dateLabel} · {wedding.timeLabel}
-            </p>
-            <p className="mt-2 text-sm text-cream/45">{wedding.venue.name}</p>
+            {giftOnly ? null : (
+              <>
+                <p className="mt-4 text-[0.7rem] uppercase tracking-[0.3em] text-cream/55">
+                  {wedding.dateLabel} · {wedding.timeLabel}
+                </p>
+                <p className="mt-2 text-sm text-cream/45">{wedding.venue.name}</p>
+              </>
+            )}
           </div>
 
-          <span aria-hidden="true" className="rule-gold" />
+          {giftOnly ? null : (
+            <>
+              <span aria-hidden="true" className="rule-gold" />
 
-          <nav aria-label="Rodapé">
-            <ul className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
-              {links.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-[0.7rem] uppercase tracking-[0.18em] text-cream/55 transition-colors duration-500 hover:text-cream"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+              <nav aria-label="Rodapé">
+                <ul className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
+                  {links.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="text-[0.7rem] uppercase tracking-[0.18em] text-cream/55 transition-colors duration-500 hover:text-cream"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </>
+          )}
 
           {wedding.couple.hashtag ? (
             <p className="text-xs tracking-[0.2em] text-gold/80">
