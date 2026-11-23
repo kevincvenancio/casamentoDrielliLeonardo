@@ -13,10 +13,16 @@ export function PaymentResult({
   title,
   message,
   tone,
+  backHref = "/presentes",
+  homeLink = true,
 }: {
   title: string;
   message: string;
   tone: "success" | "pending" | "error";
+  /** Lista para onde o "voltar" leva. */
+  backHref?: string;
+  /** A pagina avulsa de presentes nao leva ao resto do site. */
+  homeLink?: boolean;
 }) {
   const accent =
     tone === "success"
@@ -69,12 +75,14 @@ export function PaymentResult({
           <span className="rule-gold" />
           <p className="lede-light">{message}</p>
           <div className="flex w-full max-w-sm flex-col gap-3 sm:max-w-none sm:flex-row sm:justify-center">
-            <Link href="/presentes" className="btn-light w-full sm:w-auto">
+            <Link href={backHref} className="btn-light w-full sm:w-auto">
               Voltar aos presentes
             </Link>
-            <Link href="/" className="btn-light w-full sm:w-auto">
-              Página inicial
-            </Link>
+            {homeLink ? (
+              <Link href="/" className="btn-light w-full sm:w-auto">
+                Página inicial
+              </Link>
+            ) : null}
           </div>
         </Reveal>
       </div>

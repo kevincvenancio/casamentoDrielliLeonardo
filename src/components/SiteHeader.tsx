@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { wedding } from "@/config/wedding";
+import { isGiftOnly } from "@/lib/gift-only";
 
 const nav = [
   { href: "/", label: "Início" },
@@ -29,6 +30,9 @@ type Tone = "light" | "dark" | "clear";
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  // Na pagina avulsa de presentes a barra fica so com o nome do casal: sem
+  // menu, sem "Confirmar" e sem link para o resto do site.
+  const giftOnly = isGiftOnly(pathname);
   const headerRef = useRef<HTMLElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
 
@@ -48,6 +52,23 @@ export function SiteHeader() {
   // vidro viraria uma faixa atravessada na cortina) e com texto claro.
   const clear = open || tone === "clear";
   const onDark = open || tone !== "light";
+
+  const logoClass = `flex items-baseline gap-2 font-serif text-xl tracking-wide transition-colors duration-500 sm:text-2xl ${
+    onDark ? "text-cream" : "text-ink"
+  }`;
+  const logo = (
+    <>
+      <span>{wedding.couple.bride}</span>
+      <span
+        className={`text-base italic transition-colors duration-500 ${
+          onDark ? "text-cream/70" : "text-gold"
+        }`}
+      >
+        &
+      </span>
+      <span>{wedding.couple.groom}</span>
+    </>
+  );
 
   // Tom da barra + fio de progresso da leitura, no mesmo listener.
   useEffect(() => {
@@ -129,7 +150,13 @@ export function SiteHeader() {
           `backdrop-filter` transforma o elemento em bloco de contencao para
           descendentes `position: fixed` -- de dentro dele, a cortina ficaria
           presa aos 68px de altura da barra em vez de cobrir a tela. */}
-      <MobileMenu open={open} pathname={pathname} onClose={() => setOpen(false)} />
+      {giftOnly ? null : (
+        <MobileMenu
+          open={open}
+          pathname={pathname}
+          onClose={() => setOpen(false)}
+        />
+      )}
 
       <header
         ref={headerRef}
@@ -154,97 +181,97 @@ export function SiteHeader() {
         />
 
         <div className="container-wide flex h-full items-center justify-between gap-6">
-          <Link
-            href="/"
-            onClick={() => setOpen(false)}
-            aria-label={`${wedding.couple.bride} e ${wedding.couple.groom} — ir para o início`}
-            className={`group flex items-baseline gap-2 font-serif text-xl tracking-wide transition-colors duration-500 sm:text-2xl ${
-              onDark ? "text-cream" : "text-ink"
-            }`}
-          >
-            <span>{wedding.couple.bride}</span>
-            <span
-              className={`text-base italic transition-colors duration-500 ${
-                onDark ? "text-cream/70" : "text-gold"
-              }`}
+          {giftOnly ? (
+            <span className={logoClass}>{logo}</span>
+          ) : (
+            <Link
+              href="/"
+              onClick={() => setOpen(false)}
+              aria-label={`${wedding.couple.bride} e ${wedding.couple.groom} — ir para o início`}
+              className={`group ${logoClass}`}
             >
-              &
-            </span>
-            <span>{wedding.couple.groom}</span>
-          </Link>
+              {logo}
+            </Link>
+          )}
 
           {/* Navegação em telas largas */}
-          <nav className="hidden items-center gap-8 lg:flex">
-            {nav.map((item) => {
-              const active = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className={`group relative text-[0.72rem] font-medium uppercase tracking-[0.18em] transition-colors duration-500 ${
-                    onDark
-                      ? active
-                        ? "text-cream"
-                        : "text-cream/65 hover:text-cream"
-                      : active
-                        ? "text-ink"
-                        : "text-stone hover:text-ink"
-                  }`}
-                >
-                  {item.label}
-                  {/* Fio que cresce do centro no hover e fica cheio na página atual. */}
-                  <span
-                    aria-hidden="true"
-                    className={`absolute -bottom-1.5 left-0 h-px w-full origin-center bg-gold transition-transform duration-500 ease-silk ${
-                      active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+          {giftOnly ? null : (
+            <nav className="hidden items-center gap-8 lg:flex">
+              {nav.map((item) => {
+                const active = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    className={`group relative text-[0.72rem] font-medium uppercase tracking-[0.18em] transition-colors duration-500 ${
+                      onDark
+                        ? active
+                          ? "text-cream"
+                          : "text-cream/65 hover:text-cream"
+                        : active
+                          ? "text-ink"
+                          : "text-stone hover:text-ink"
                     }`}
-                  />
-                </Link>
-              );
-            })}
+                  >
+                    {item.label}
+                    {/* Fio que cresce do centro no hover e fica cheio na página atual. */}
+                    <span
+                      aria-hidden="true"
+                      className={`absolute -bottom-1.5 left-0 h-px w-full origin-center bg-gold transition-transform duration-500 ease-silk ${
+                        active
+                          ? "scale-x-100"
+                          : "scale-x-0 group-hover:scale-x-100"
+                      }`}
+                    />
+                  </Link>
+                );
+              })}
 
-            <Link
-              href="/rsvp"
-              className={`rounded-full border px-6 py-2.5 text-[0.7rem] font-medium uppercase tracking-[0.18em] transition-all duration-500 ease-silk hover:-translate-y-0.5 ${
-                onDark
-                  ? "border-cream/45 text-cream hover:bg-cream hover:text-ink"
-                  : "border-ink bg-ink text-cream hover:bg-stone"
-              }`}
-            >
-              Confirmar
-            </Link>
-          </nav>
+              <Link
+                href="/rsvp"
+                className={`rounded-full border px-6 py-2.5 text-[0.7rem] font-medium uppercase tracking-[0.18em] transition-all duration-500 ease-silk hover:-translate-y-0.5 ${
+                  onDark
+                    ? "border-cream/45 text-cream hover:bg-cream hover:text-ink"
+                    : "border-ink bg-ink text-cream hover:bg-stone"
+                }`}
+              >
+                Confirmar
+              </Link>
+            </nav>
+          )}
 
           {/* Botão do menu em telas estreitas */}
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? "Fechar menu" : "Abrir menu"}
-            aria-expanded={open}
-            aria-controls="menu-mobile"
-            className={`relative z-[60] -mr-2 inline-flex h-11 w-11 items-center justify-center rounded-full transition-colors duration-500 lg:hidden ${
-              open
-                ? "text-cream"
-                : onDark
-                  ? "text-cream hover:bg-cream/10"
-                  : "text-ink hover:bg-sand/60"
-            }`}
-          >
-            {/* Duas barras que viram um X. */}
-            <span className="relative block h-3 w-6" aria-hidden="true">
-              <span
-                className={`absolute left-0 block h-px w-full bg-current transition-transform duration-500 ease-silk ${
-                  open ? "top-1/2 rotate-45" : "top-0"
-                }`}
-              />
-              <span
-                className={`absolute left-0 block h-px w-full bg-current transition-transform duration-500 ease-silk ${
-                  open ? "top-1/2 -rotate-45" : "top-full"
-                }`}
-              />
-            </span>
-          </button>
+          {giftOnly ? null : (
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              aria-label={open ? "Fechar menu" : "Abrir menu"}
+              aria-expanded={open}
+              aria-controls="menu-mobile"
+              className={`relative z-[60] -mr-2 inline-flex h-11 w-11 items-center justify-center rounded-full transition-colors duration-500 lg:hidden ${
+                open
+                  ? "text-cream"
+                  : onDark
+                    ? "text-cream hover:bg-cream/10"
+                    : "text-ink hover:bg-sand/60"
+              }`}
+            >
+              {/* Duas barras que viram um X. */}
+              <span className="relative block h-3 w-6" aria-hidden="true">
+                <span
+                  className={`absolute left-0 block h-px w-full bg-current transition-transform duration-500 ease-silk ${
+                    open ? "top-1/2 rotate-45" : "top-0"
+                  }`}
+                />
+                <span
+                  className={`absolute left-0 block h-px w-full bg-current transition-transform duration-500 ease-silk ${
+                    open ? "top-1/2 -rotate-45" : "top-full"
+                  }`}
+                />
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Progresso da leitura: fio dourado na base do header. */}

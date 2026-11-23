@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { GiftWithStock } from "@/lib/stock";
 import { formatBRL } from "@/lib/format";
 import { Reveal } from "@/components/motion/Reveal";
+import type { CheckoutOrigin } from "@/lib/gift-only";
 
 /**
  * Aviso de estoque abaixo do preço.
@@ -74,7 +75,13 @@ function GiftImage({ gift }: { gift: GiftWithStock }) {
     );
 }
 
-export function GiftGrid({ gifts }: { gifts: GiftWithStock[] }) {
+export function GiftGrid({
+    gifts,
+    origin = "site",
+}: {
+    gifts: GiftWithStock[];
+    origin?: CheckoutOrigin;
+}) {
     const [selected, setSelected] = useState<GiftWithStock | null>(null);
 
     if (gifts.length === 0) {
@@ -144,7 +151,11 @@ export function GiftGrid({ gifts }: { gifts: GiftWithStock[] }) {
             </div>
 
             {selected && (
-                <CheckoutModal gift={selected} onClose={() => setSelected(null)} />
+                <CheckoutModal
+                    gift={selected}
+                    origin={origin}
+                    onClose={() => setSelected(null)}
+                />
             )}
         </>
     );
@@ -152,9 +163,11 @@ export function GiftGrid({ gifts }: { gifts: GiftWithStock[] }) {
 
 function CheckoutModal({
     gift,
+    origin,
     onClose,
 }: {
     gift: GiftWithStock;
+    origin: CheckoutOrigin;
     onClose: () => void;
 }) {
     const [name, setName] = useState("");
@@ -201,6 +214,7 @@ function CheckoutModal({
                     giftId: gift.id,
                     buyerName: name.trim(),
                     buyerEmail: email.trim() || undefined,
+                    origin,
                 }),
             });
             const data = await res.json();
